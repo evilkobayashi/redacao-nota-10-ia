@@ -139,7 +139,7 @@ export function RedacaoForm() {
                 <BookOpen className="w-5 h-5" /> Sugestão de Reescrita
               </div>
               <p className="text-sm text-emerald-900 leading-relaxed italic">
-                "{resultado.sugestao_reescrita}"
+                &quot;{resultado.sugestao_reescrita}&quot;
               </p>
             </div>
           </div>

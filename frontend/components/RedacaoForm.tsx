@@ -21,26 +21,18 @@ export function RedacaoForm() {
     setErro(null)
 
     try {
-      // Mock request (conectaremos à API FastAPI em seguida)
-      // const res = await fetch("http://localhost:8000/api/redacao/avaliar", { ... })
-      
-      // Simula delay de rede e correção detalhada pelo LLM
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      
-      const mockResult = {
-        nota_total: 880,
-        competencias: [
-          { competencia: 1, nota: 160, titulo: "Domínio da Norma Culta", comentarios: "Bons desvios, poucas crases." },
-          { competencia: 2, nota: 200, titulo: "Compreensão e Repertório", comentarios: "Abordou bem o tema." },
-          { competencia: 3, nota: 160, titulo: "Projeto de Texto", comentarios: "Argumentação consistente." },
-          { competencia: 4, nota: 200, titulo: "Coesão", comentarios: "Ótimo uso de conectivos." },
-          { competencia: 5, nota: 160, titulo: "Proposta de Intervenção", comentarios: "Faltou detalhamento." },
-        ],
-        sugestao_reescrita: "Cabe ao Estado agir de forma X, por meio de Y, para mitigar Z.",
-        comentario_geral: "Ótima estrutura! Fique de olho na competência 5."
+      const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/avaliar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto, tema })
+      })
+
+      if (!res.ok) {
+        throw new Error("Falha ao avaliar redação")
       }
-      
-      setResultado(mockResult)
+
+      const data = await res.json()
+      setResultado(data)
     } catch (err: any) {
       setErro("Falha ao se conectar com a API de correção.")
     } finally {

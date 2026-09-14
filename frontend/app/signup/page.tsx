@@ -2,9 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { PenTool, Mail, Lock, User, ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
 
 export default function SignupPage() {
+  const router = useRouter()
+  const supabase = createClient()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -13,18 +17,36 @@ export default function SignupPage() {
   const [message, setMessage] = useState({ text: '', type: '' })
 
   async function handleGoogleSignUp() {
-    // TODO (Gemini): Conectar ao Supabase Auth signInWithOAuth({ provider: 'google' })
     setLoading(true)
-    setMessage({ text: 'Integração Google será conectada pelo backend.', type: 'info' })
-    setLoading(false)
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      }
+    })
+    if (error) {
+      setMessage({ text: error.message, type: 'error' })
+      setLoading(false)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO (Gemini): Conectar ao Supabase Auth signUp({ email, password, options: { data: { full_name: name } } })
     setLoading(true)
-    setMessage({ text: 'Cadastro será conectado pelo backend.', type: 'info' })
-    setLoading(false)
+    setMessage({ text: '', type: '' })
+    
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password, 
+      options: { data: { full_name: name } } 
+    })
+    
+    if (error) {
+      setMessage({ text: error.message, type: 'error' })
+      setLoading(false)
+    } else {
+      router.push('/dashboard')
+    }
   }
 
   return (

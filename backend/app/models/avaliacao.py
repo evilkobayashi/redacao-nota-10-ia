@@ -5,7 +5,7 @@ class RedacaoSubmit(BaseModel):
     tema: str
     banca: str = "ENEM"  # Ex: ENEM, VUNESP, CESPE, FCC, FGV
     texto: Optional[str] = None
-    image_url: Optional[str] = None
+    image_base64: Optional[str] = None
     aluno_nome: Optional[str] = None
     ano_escolar: Optional[str] = None
 
@@ -24,6 +24,9 @@ class MarcacaoTexto(BaseModel):
     explicacao: str
 
 class AvaliacaoRedacao(BaseModel):
+    is_plagio: bool = False
+    fonte_plagio: Optional[str] = None
+    texto_extraido_ocr: Optional[str] = None
     nota_total: float
     nota_maxima_possivel: float
     criterios: List[FeedbackCriterio]

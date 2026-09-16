@@ -4,3 +4,9 @@ pydantic
 google-genai
 python-dotenv
 supabase
+fpdf2==2.8.1
+duckduckgo-search==6.2.11
+Pillow==10.4.0
+fpdf2>=2.8.1
+duckduckgo-search>=6.2.11
+Pillow>=10.4.0

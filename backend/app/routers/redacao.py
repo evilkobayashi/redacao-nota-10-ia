@@ -25,23 +25,23 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
         # 1. Processa Inteligência Artificial (Gemini 1.5 Pro)
         resultado = await avaliar_redacao_gemini(
             tema=payload.tema, 
-            texto=texto_para_avaliar
+            texto=texto_para_avaliar,
+            banca=payload.banca
         )
         
         # 2. Persiste os dados no Banco de Dados (Supabase)
         try:
             db = get_supabase_client()
             
-            # Mapeia dinamicamente as notas de cada competência para a tabela
-            comp_scores = {f"score_c{c.competencia}": c.nota for c in resultado.competencias}
-            
             insercao = {
                 "tema": payload.tema,
+                "banca": payload.banca,
                 "raw_text": texto_para_avaliar,
                 "aluno_nome": payload.aluno_nome,
                 "ano_escolar": payload.ano_escolar,
                 "feedback_json": resultado.model_dump(),
-                **comp_scores
+                "nota_total": resultado.nota_total,
+                "nota_maxima": resultado.nota_maxima_possivel
             }
             
             # Se houvesse um UUID do usuário autenticado no JWT, colocaríamos aqui.

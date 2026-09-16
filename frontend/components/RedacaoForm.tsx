@@ -1,9 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, PenTool, AlertCircle, BookOpen, ArrowRight } from "lucide-react"
+import { Loader2, PenTool, AlertCircle, BookOpen, ArrowRight, BookMarked, GraduationCap } from "lucide-react"
+
+const BANCAS_DISPONIVEIS = [
+  { id: "ENEM", label: "ENEM (Exame Nacional do Ensino Médio)" },
+  { id: "VUNESP", label: "VUNESP (Vestibulares e Concursos SP)" },
+  { id: "FCC", label: "FCC (Fundação Carlos Chagas)" },
+  { id: "CESPE", label: "CESPE / CEBRASPE" },
+  { id: "FGV", label: "FGV (Fundação Getulio Vargas)" }
+]
 
 export function RedacaoForm() {
+  const [banca, setBanca] = useState("ENEM")
   const [tema, setTema] = useState("")
   const [texto, setTexto] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,7 +33,7 @@ export function RedacaoForm() {
       const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/avaliar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto, tema })
+        body: JSON.stringify({ texto, tema, banca })
       })
 
       if (!res.ok) {
@@ -50,7 +59,7 @@ export function RedacaoForm() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-800">Enviar Redação</h2>
-            <p className="text-sm text-slate-500">Digite ou cole seu texto do modelo ENEM.</p>
+            <p className="text-sm text-slate-500">Selecione a banca e envie seu texto para análise.</p>
           </div>
         </div>
 
@@ -60,6 +69,22 @@ export function RedacaoForm() {
               <AlertCircle className="w-4 h-4" /> {erro}
             </div>
           )}
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" /> Banca Avaliadora
+            </label>
+            <select
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+              value={banca}
+              onChange={(e) => setBanca(e.target.value)}
+              disabled={isLoading}
+            >
+              {BANCAS_DISPONIVEIS.map(b => (
+                <option key={b.id} value={b.id}>{b.label}</option>
+              ))}
+            </select>
+          </div>
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Qual é o tema da redação?</label>
@@ -93,9 +118,9 @@ export function RedacaoForm() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors disabled:opacity-70"
           >
             {isLoading ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Avaliando com IA...</>
+              <><Loader2 className="w-5 h-5 animate-spin" /> Analisando Padrão {banca}...</>
             ) : (
-              <>Solicitar Correção Nota 1000 <ArrowRight className="w-5 h-5" /></>
+              <>Solicitar Correção Nota Máxima <ArrowRight className="w-5 h-5" /></>
             )}
           </button>
         </form>
@@ -105,30 +130,61 @@ export function RedacaoForm() {
       <div className="space-y-6">
         {resultado ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center mb-6">
-              <h3 className="text-slate-500 font-semibold mb-1">Nota Final</h3>
-              <div className="text-6xl font-black text-blue-700">{resultado.nota_total}</div>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center mb-6 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-blue-600" />
+              <h3 className="text-slate-500 font-semibold mb-1 uppercase tracking-wider text-sm">Nota Final ({banca})</h3>
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-6xl font-black text-blue-700">{resultado.nota_total}</span>
+                <span className="text-xl font-medium text-slate-400">/ {resultado.nota_maxima_possivel}</span>
+              </div>
+              <p className="text-sm text-slate-600 mt-3">{resultado.comentario_geral}</p>
             </div>
 
             <div className="space-y-4">
-              {resultado.competencias.map((comp: any) => (
-                <div key={comp.competencia} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                  <div className="flex justify-between items-center mb-2">
+              {resultado.criterios.map((crit: any, idx: number) => (
+                <div key={idx} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-100">
                     <h4 className="font-bold text-slate-800">
-                      C{comp.competencia} - {comp.titulo}
+                      {crit.nome_criterio}
                     </h4>
-                    <span className="font-black text-blue-700 bg-blue-50 px-3 py-1 rounded-full text-sm">
-                      {comp.nota} pts
+                    <span className="font-black text-blue-700 bg-blue-50 px-3 py-1 rounded-full text-sm whitespace-nowrap">
+                      {crit.nota_obtida} / {crit.nota_maxima}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600 leading-relaxed">{comp.comentarios}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed mb-3">{crit.comentarios}</p>
+                  
+                  {crit.pontos_melhoria?.length > 0 && (
+                    <div className="mt-2">
+                      <strong className="text-xs text-rose-600 uppercase tracking-wide">Atenção:</strong>
+                      <ul className="list-disc list-inside text-sm text-slate-600 mt-1">
+                        {crit.pontos_melhoria.map((p: string, i: number) => <li key={i}>{p}</li>)}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
+            {/* Referências de Leitura */}
+            {resultado.referencias_leitura && resultado.referencias_leitura.length > 0 && (
+              <div className="bg-indigo-50 border border-indigo-100 p-5 rounded-xl mt-6">
+                <div className="flex items-center gap-2 text-indigo-800 font-bold mb-3">
+                  <BookMarked className="w-5 h-5" /> Repertório Sociocultural Recomendado
+                </div>
+                <ul className="space-y-3">
+                  {resultado.referencias_leitura.map((ref: string, i: number) => (
+                    <li key={i} className="text-sm text-indigo-900 leading-relaxed flex items-start gap-2">
+                      <span className="text-indigo-400 font-bold mt-0.5">•</span>
+                      <span>{ref}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-xl mt-6">
               <div className="flex items-center gap-2 text-emerald-800 font-bold mb-2">
-                <BookOpen className="w-5 h-5" /> Sugestão de Reescrita
+                <BookOpen className="w-5 h-5" /> Sugestão Prática de Reescrita
               </div>
               <p className="text-sm text-emerald-900 leading-relaxed italic">
                 &quot;{resultado.sugestao_reescrita}&quot;
@@ -139,8 +195,8 @@ export function RedacaoForm() {
           <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-slate-100 rounded-xl border border-slate-200 border-dashed opacity-70">
             <BookOpen className="w-12 h-12 text-slate-400 mb-4" />
             <h3 className="font-bold text-slate-700 text-lg">Aguardando Redação</h3>
-            <p className="text-sm text-slate-500 mt-2">
-              Envie sua redação no formulário ao lado para receber um diagnóstico completo baseado nas 5 competências do ENEM.
+            <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">
+              Selecione a banca no formulário e envie seu texto para receber a correção cirúrgica baseada no edital oficial.
             </p>
           </div>
         )}

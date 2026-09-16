@@ -219,10 +219,10 @@ export default function LandingPage() {
       <section className="py-24">
         <div className="max-w-3xl mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-gray-950 text-center mb-12">Perguntas Frequentes</h2>
-          <FAQItem q="A correção é realmente confiável?" a="Sim. A IA usa como base os manuais oficiais de correção do INEP e a matriz de referência das 5 competências. A nota gerada tem margem de erro comparável a de corretores humanos treinados." />
+          <FAQItem q="A correção é realmente confiável?" a="Sim. A IA foi treinada com base nos editais e manuais oficiais de correção do INEP (ENEM), VUNESP, FCC, CESPE e FGV. A nota gerada reflete o rigor exigido por cada banca." />
           <FAQItem q="Posso enviar foto da redação escrita à mão?" a="Sim. O sistema aceita texto digitado ou imagem fotografada do caderno. A IA usa visão computacional para extrair o texto antes de corrigir." />
           <FAQItem q="Minha redação fica armazenada?" a="Não. O texto é processado em memória e descartado após a geração do relatório. Nenhum dado é usado para treinamento de modelos." />
-          <FAQItem q="Funciona para outros vestibulares além do ENEM?" a="Atualmente o foco é exclusivamente no ENEM, que representa a maior demanda. Outros vestibulares podem ser adicionados no futuro." />
+          <FAQItem q="Funciona para outros vestibulares além do ENEM?" a="Sim! O sistema agora é multi-banca. Você pode selecionar ENEM, VUNESP, FCC, CESPE/CEBRASPE ou FGV antes de enviar seu texto." />
           <FAQItem q="Posso cancelar a assinatura a qualquer momento?" a="Sim, sem multa e sem burocracia. Basta ir nas configurações da sua conta." />
         </div>
       </section>

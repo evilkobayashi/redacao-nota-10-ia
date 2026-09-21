@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import redacao
+from app.routers import redacao, pagamento
 
 app = FastAPI(
     title="Redação Nota 10 AÍ - API",
@@ -19,6 +19,7 @@ app.add_middleware(
 
 # Registra os routers
 app.include_router(redacao.router)
+app.include_router(pagamento.router)
 
 @app.get("/health")
 def health_check():

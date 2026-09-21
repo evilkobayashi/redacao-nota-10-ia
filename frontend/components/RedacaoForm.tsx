@@ -23,6 +23,8 @@ export function RedacaoForm() {
   const [resultado, setResultado] = useState<any>(null)
   const [erro, setErro] = useState<string | null>(null)
 
+  const supabase = createClient()
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -54,9 +56,11 @@ export function RedacaoForm() {
     setResultado(null)
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
       const payload: any = { tema, banca }
       if (texto) payload.texto = texto
       if (imageBase64) payload.image_base64 = imageBase64
+      if (user) payload.user_id = user.id
 
       const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/avaliar", {
         method: "POST",
@@ -65,13 +69,14 @@ export function RedacaoForm() {
       })
 
       if (!res.ok) {
-        throw new Error("Falha ao avaliar redação")
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.detail || "Falha ao avaliar redação")
       }
 
       const data = await res.json()
       setResultado(data)
     } catch (err: any) {
-      setErro("Falha ao se conectar com a API de correção. Tente novamente.")
+      setErro(err.message || "Falha ao se conectar com a API de correção. Tente novamente.")
     } finally {
       setIsLoading(false)
     }

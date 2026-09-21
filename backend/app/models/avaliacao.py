@@ -8,6 +8,7 @@ class RedacaoSubmit(BaseModel):
     image_base64: Optional[str] = None
     aluno_nome: Optional[str] = None
     ano_escolar: Optional[str] = None
+    user_id: Optional[str] = None
 
 class FeedbackCriterio(BaseModel):
     nome_criterio: str

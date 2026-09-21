@@ -20,6 +20,15 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
     if not payload.texto and not payload.image_base64:
         raise HTTPException(status_code=400, detail="Obrigatório enviar o texto ou a imagem (Base64).")
         
+    db = get_supabase_client()
+    user_id = payload.user_id
+    
+    if user_id:
+        res = db.table("user_credits").select("credits").eq("user_id", user_id).execute()
+        creditos = res.data[0]["credits"] if res.data else 3
+        if creditos <= 0:
+            raise HTTPException(status_code=403, detail="Você não tem mais correções disponíveis. Adquira o plano PRO.")
+    
     texto_para_avaliar = payload.texto
     texto_ocr = None
     
@@ -58,6 +67,7 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
             db = get_supabase_client()
             
             insercao = {
+                "user_id": payload.user_id,
                 "tema": payload.tema,
                 "banca": payload.banca,
                 "raw_text": texto_para_avaliar,
@@ -69,6 +79,15 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
                 "is_plagio": resultado.is_plagio
             }
             db.table("redacao_submissions").insert(insercao).execute()
+            
+            # Decrementa o crédito
+            if user_id:
+                if not res.data:
+                    # Se não existia, cria com 2 (usou 1 das 3 grátis)
+                    db.table("user_credits").insert({"user_id": user_id, "credits": 2}).execute()
+                else:
+                    db.table("user_credits").update({"credits": creditos - 1}).eq("user_id", user_id).execute()
+                    
         except Exception as db_err:
             logger.error(f"Erro ao salvar redação no banco: {db_err}")
         
@@ -130,3 +149,13 @@ async def exportar_pdf(avaliacao: AvaliacaoRedacao):
         media_type="application/pdf", 
         headers={"Content-Disposition": "attachment; filename=relatorio_redacao.pdf"}
     )
+
+@router.get("/history/{user_id}")
+async def get_history(user_id: str):
+    try:
+        db = get_supabase_client()
+        res = db.table("redacao_submissions").select("*").eq("user_id", user_id).execute()
+        # Sort manually if created_at is problematic or just return
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

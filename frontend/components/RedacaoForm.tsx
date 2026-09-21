@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Loader2, PenTool, AlertCircle, BookOpen, ArrowRight, BookMarked, GraduationCap, Image as ImageIcon, Download, FileWarning } from "lucide-react"
+import { createClient } from '../utils/supabase/client'
 
 const BANCAS_DISPONIVEIS = [
   { id: "ENEM", label: "ENEM (Exame Nacional do Ensino Médio)" },

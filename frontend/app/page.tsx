@@ -1,246 +1,301 @@
 'use client'
 
 import Link from 'next/link'
-import { FileText, Sparkles, Target, BarChart3, ArrowRight, CheckCircle2, PenTool, BookOpen, TrendingUp, Zap, Shield, Award, ChevronDown } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import type { ReactNode } from 'react'
+import { motion, MotionConfig } from 'framer-motion'
+import { Camera, Check, PenTool, ScanText, Sparkles } from 'lucide-react'
 
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } })
+const btn3d =
+  'inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3.5 text-sm font-extrabold uppercase tracking-wider transition-all active:translate-y-1 active:border-b-0 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-red-300'
+const btnPrimary = `${btn3d} bg-red-600 text-white border-b-4 border-red-800 hover:bg-red-500`
+const btnGhost = `${btn3d} bg-white text-red-600 border-2 border-b-4 border-slate-200 hover:bg-slate-50`
+
+const reveal = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.3 },
+  transition: { duration: 0.6, ease: 'easeOut' as const },
 }
 
-function FAQItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false)
+const bancas = ['ENEM', 'VUNESP', 'FCC', 'CESPE/CEBRASPE', 'FGV', 'Vestibulares', 'Concursos', 'Ensino Médio', 'Cursinhos']
+
+const competencias = [
+  { c: 'C1', t: 'Norma culta', n: 160 },
+  { c: 'C2', t: 'Tema e repertório', n: 200 },
+  { c: 'C3', t: 'Argumentação', n: 160 },
+  { c: 'C4', t: 'Coesão', n: 200 },
+  { c: 'C5', t: 'Proposta de intervenção', n: 200 },
+]
+
+const linhas = {
+  backgroundImage: 'repeating-linear-gradient(transparent 0 27px, #fecaca 27px 28px)',
+  lineHeight: '28px',
+}
+
+function Logo({ small }: { small?: boolean }) {
   return (
-    <div className="border-b border-gray-200">
-      <button onClick={() => setOpen(!open)} className="w-full py-5 flex items-center justify-between text-left">
-        <span className="text-base font-semibold text-gray-900">{q}</span>
-        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-      {open && <p className="pb-5 text-gray-500 text-sm leading-relaxed">{a}</p>}
-    </div>
+    <span className="flex items-center gap-2">
+      <span className={`grid place-items-center rounded-xl border-b-4 border-red-800 bg-red-600 text-white ${small ? 'size-8' : 'size-9'}`}>
+        <PenTool className="size-4" aria-hidden />
+      </span>
+      <span className={`font-extrabold tracking-tight text-slate-800 ${small ? 'text-lg' : 'text-xl'}`}>
+        redação <span className="text-red-600">nota 10</span> <span className="text-amber-500">aí</span>
+      </span>
+    </span>
+  )
+}
+
+function Bolha({ emoji, className, delay }: { emoji: string; className: string; delay: number }) {
+  return (
+    <motion.span
+      aria-hidden
+      className={`absolute z-10 grid size-14 place-items-center rounded-2xl border-2 border-b-4 border-slate-200 bg-white text-2xl shadow-sm md:size-16 ${className}`}
+      animate={{ y: [0, -12, 0] }}
+      transition={{ duration: 3.2, repeat: Infinity, delay, ease: 'easeInOut' }}
+    >
+      {emoji}
+    </motion.span>
+  )
+}
+
+function Secao({ titulo, texto, cor, invertido, children }: { titulo: string; texto: ReactNode; cor: string; invertido?: boolean; children: ReactNode }) {
+  return (
+    <section className="mx-auto grid max-w-5xl items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
+      <motion.div {...reveal} className={invertido ? 'md:order-2' : ''}>{children}</motion.div>
+      <motion.div {...reveal}>
+        <h2 className={`text-3xl font-extrabold leading-tight md:text-4xl ${cor}`}>{titulo}</h2>
+        <p className="mt-4 text-lg leading-relaxed text-slate-500">{texto}</p>
+      </motion.div>
+    </section>
   )
 }
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 overflow-x-hidden selection:bg-red-100">
-
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-tr from-red-600 to-amber-500 rounded-xl flex items-center justify-center shadow-md">
-              <PenTool className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-extrabold text-gray-950 text-xl tracking-tight">
-              Redação <span className="text-red-600">Nota 10</span> <span className="text-amber-500">AÍ</span>
-            </span>
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-screen overflow-x-hidden bg-white text-slate-700 selection:bg-red-100">
+        {/* Nav */}
+        <nav className="sticky top-0 z-20 border-b-2 border-slate-100 bg-white/90 backdrop-blur">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+            <Link href="/" aria-label="Redação Nota 10 AÍ - início"><Logo /></Link>
+            <Link href="/login" className={`${btnGhost} px-4 py-2.5 text-xs`}>Entrar</Link>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <button className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors">
-                Entrar
-              </button>
-            </Link>
-            <Link href="/signup">
-              <button className="px-5 py-2.5 text-sm font-bold bg-red-600 hover:bg-red-700 text-white rounded-full shadow-md shadow-red-600/20 transition-all">
-                Criar Conta Grátis
-              </button>
-            </Link>
-          </div>
-        </div>
-      </header>
+        </nav>
 
-      {/* HERO */}
-      <section className="relative pt-24 pb-20 lg:pt-36 lg:pb-28 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-red-500/10 blur-[140px] rounded-full -z-10 pointer-events-none" />
+        {/* Hero */}
+        <header className="mx-auto grid max-w-5xl items-center gap-12 px-6 pb-12 pt-10 md:grid-cols-2 md:pb-20 md:pt-16">
+          <div className="relative mx-auto w-full max-w-sm py-8">
+            <motion.div
+              initial={{ opacity: 0, y: 30, rotate: -8 }}
+              animate={{ opacity: 1, y: 0, rotate: -2 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 14 }}
+              className="rounded-3xl border-2 border-b-4 border-slate-200 bg-[#FFFDF7] p-6"
+            >
+              <p className="mb-3 text-xs font-extrabold uppercase tracking-wider text-slate-400">Tema: Desafios da educação digital no Brasil</p>
+              <p className="font-serif text-[15px] text-slate-700" style={linhas}>
+                A tecnologia transformou a forma de aprender. No entanto, muitos estudantes{' '}
+                <span className="underline decoration-red-500 decoration-wavy decoration-2 underline-offset-4">não possui</span>{' '}
+                acesso à internet de qualidade, o que{' '}
+                <span className="rounded bg-amber-100 px-1">aprofunda as desigualdades</span>{' '}
+                já existentes no país.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
+                <span className="rounded-full border-2 border-red-200 bg-red-50 px-3 py-1 text-red-600">C1 · concordância verbal</span>
+                <span className="rounded-full border-2 border-amber-200 bg-amber-50 px-3 py-1 text-amber-600">C3 · bom argumento!</span>
+              </div>
+            </motion.div>
 
-        <div className="max-w-6xl mx-auto px-6 text-center space-y-8">
-          <motion.div initial="hidden" animate="visible" custom={0} variants={fadeIn}>
-            <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 text-red-700 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+            <motion.div
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: 8 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.5 }}
+              className="absolute -right-3 top-0 z-20 grid size-24 place-items-center rounded-full border-b-[6px] border-emerald-700 bg-emerald-500 text-center text-white shadow-lg"
+              aria-label="Nota 920"
+            >
+              <span>
+                <span className="block text-3xl font-extrabold leading-none">920</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">nota</span>
               </span>
-              Treinada nos Manuais Oficiais do INEP
-            </div>
-          </motion.div>
+            </motion.div>
+            <Bolha emoji="✍️" className="-left-6 top-2" delay={0} />
+            <Bolha emoji="📚" className="-bottom-2 -left-4" delay={1.2} />
+            <Bolha emoji="🎯" className="-bottom-6 right-6" delay={1.8} />
+          </div>
 
-          <motion.h1 initial="hidden" animate="visible" custom={1} variants={fadeIn}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-950 leading-[1.15] max-w-4xl mx-auto">
-            Sua redação corrigida por{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-500 to-red-600">
-              Inteligência Artificial
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center md:text-left"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border-2 border-red-100 bg-red-50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider text-red-600">
+              <Sparkles className="size-4" aria-hidden /> Baseada nos critérios do INEP
             </span>
-            {' '}em segundos
-          </motion.h1>
-
-          <motion.p initial="hidden" animate="visible" custom={2} variants={fadeIn}
-            className="text-lg lg:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-            Feedback detalhado nas 5 competências do ENEM, com nota individual, pontos fracos mapeados e sugestões de reescrita. Tudo em menos de 30 segundos.
-          </motion.p>
-
-          <motion.div initial="hidden" animate="visible" custom={3} variants={fadeIn}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/signup">
-              <button className="h-14 px-8 text-base rounded-full bg-gray-950 text-white hover:bg-gray-800 shadow-xl font-bold flex items-center gap-2 transition-all">
-                Corrigir Minha Redação <ArrowRight className="w-5 h-5" />
-              </button>
-            </Link>
-            <Link href="/login">
-              <button className="h-14 px-8 text-base rounded-full border border-gray-300 text-gray-800 hover:bg-gray-50 font-semibold transition-all">
-                Já tenho conta
-              </button>
-            </Link>
+            <h1 className="mt-5 text-3xl font-extrabold leading-tight text-slate-800 md:text-5xl">
+              Sua redação rumo à <span className="text-red-600">nota 1000</span>, corrigida pela{' '}
+              <span className="text-amber-500">IA</span> em segundos.
+            </h1>
+            <p className="mt-4 text-lg text-slate-500">
+              Envie o texto ou uma <strong className="text-slate-700">foto do caderno</strong> e receba a nota nas 5 competências do ENEM,
+              com cada erro explicado e sugestões de reescrita.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:mx-auto sm:max-w-xs md:mx-0">
+              <Link href="/signup" className={btnPrimary}>Corrigir grátis</Link>
+              <Link href="/login" className={btnGhost}>Já tenho uma conta</Link>
+            </div>
           </motion.div>
+        </header>
 
-          <motion.div initial="hidden" animate="visible" custom={4} variants={fadeIn}
-            className="flex items-center justify-center gap-5 text-xs text-gray-400 font-semibold pt-3">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> 3 correções grátis</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Resultado em 30s</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Nota por competência</span>
-          </motion.div>
+        {/* Faixa de bancas */}
+        <div className="overflow-hidden border-y-2 border-slate-100 bg-slate-50 py-4" aria-label="Bancas e públicos atendidos">
+          <motion.ul className="flex w-max gap-3" animate={{ x: ['0%', '-50%'] }} transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}>
+            {[...bancas, ...bancas].map((b, i) => (
+              <li
+                key={i}
+                aria-hidden={i >= bancas.length}
+                className="whitespace-nowrap rounded-full border-2 border-slate-200 bg-white px-4 py-1.5 text-sm font-bold text-slate-500"
+              >
+                {b}
+              </li>
+            ))}
+          </motion.ul>
         </div>
-      </section>
 
-      {/* COMO FUNCIONA */}
-      <section className="py-24 bg-gray-50/50 border-y border-gray-100">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16 space-y-3">
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-950 tracking-tight">Como funciona</h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">Um processo simples, rápido e brutalmente honesto.</p>
+        {/* Competências */}
+        <Secao
+          cor="text-red-600"
+          titulo="Nota em cada uma das 5 competências"
+          texto={<>Nada de nota “no chute”. A IA avalia sua redação com a mesma matriz usada na correção oficial e mostra <strong>quanto você tirou em cada competência</strong> — e por quê.</>}
+        >
+          <div className="rounded-3xl border-2 border-b-4 border-slate-200 bg-white p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-extrabold text-slate-800">Sua correção</span>
+              <span className="text-2xl font-extrabold text-emerald-500">920</span>
+            </div>
+            <ul className="space-y-3">
+              {competencias.map((c, i) => (
+                <li key={c.c}>
+                  <div className="mb-1 flex justify-between text-sm font-bold">
+                    <span className="text-slate-600"><span className="text-red-600">{c.c}</span> · {c.t}</span>
+                    <span className="text-slate-800">{c.n}</span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                    <motion.div
+                      className={`h-full rounded-full ${c.n === 200 ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${c.n / 2}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: 0.12 * i }}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        </Secao>
+
+        {/* Reescrita */}
+        <Secao
+          invertido
+          cor="text-amber-500"
+          titulo="Errou? A IA mostra como reescrever."
+          texto={<>Cada trecho com problema vem marcado, com a <strong>explicação do erro</strong> e uma <strong>sugestão de reescrita</strong>. Você entende o que mudar e aprende pra próxima.</>}
+        >
+          <div className="space-y-3 rounded-3xl border-2 border-b-4 border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-2xl border-2 border-red-200 bg-white px-4 py-3 text-sm">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-red-500">Trecho original</span>
+              <p className="mt-1 font-serif text-slate-600">“muitos estudantes <span className="text-red-500 line-through">não possui</span> acesso”</p>
+            </div>
+            <div className="w-fit max-w-[90%] rounded-2xl rounded-bl-sm border-2 border-slate-200 bg-white px-4 py-2.5 text-sm">
+              O sujeito “muitos estudantes” está no plural, então o verbo também precisa ir pro plural. 😉
+            </div>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="flex items-start gap-2 rounded-2xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"
+            >
+              <Check className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span className="font-serif">“muitos estudantes <strong>não possuem</strong> acesso”</span>
+            </motion.div>
+          </div>
+        </Secao>
+
+        {/* Foto do caderno */}
+        <Secao
+          cor="text-emerald-500"
+          titulo="Escreveu à mão? Manda a foto."
+          texto={<>Treine como no dia da prova: escreva no papel, fotografe e pronto. A IA <strong>lê sua letra</strong>, transcreve o texto e corrige. Todas as correções ficam no seu <strong>histórico</strong> pra você acompanhar a evolução.</>}
+        >
+          <div className="flex items-center justify-center gap-3 py-4" aria-hidden>
             {[
-              { step: '1', title: 'Envie sua Redação', desc: 'Cole o texto ou envie uma foto do caderno. A IA aceita os dois formatos.', icon: <FileText className="w-6 h-6 text-red-600" /> },
-              { step: '2', title: 'IA Analisa Tudo', desc: 'O Gemini 1.5 Pro processa sua redação usando a mesma matriz do INEP, nota a nota.', icon: <Sparkles className="w-6 h-6 text-amber-600" /> },
-              { step: '3', title: 'Receba o Diagnóstico', desc: 'Nota individual em cada competência, erros destacados e sugestões de reescrita.', icon: <BarChart3 className="w-6 h-6 text-emerald-600" /> },
-            ].map((s) => (
-              <div key={s.step} className="relative bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className="absolute top-4 right-5 text-7xl font-black text-gray-100 pointer-events-none select-none">{s.step}</div>
-                <div className="w-14 h-14 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-center mb-6">{s.icon}</div>
-                <h3 className="text-xl font-bold text-gray-950 mb-3">{s.title}</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">{s.desc}</p>
+              { i: <Camera className="size-7" />, t: 'Foto', c: 'bg-slate-700 border-slate-900' },
+              { i: <ScanText className="size-7" />, t: 'Leitura', c: 'bg-amber-500 border-amber-700' },
+              { i: <Check className="size-7" />, t: 'Nota', c: 'bg-emerald-500 border-emerald-700 ring-8 ring-emerald-100' },
+            ].map((s, k) => (
+              <div key={s.t} className="flex items-center gap-3">
+                {k > 0 && <span className="h-1 w-6 rounded-full bg-slate-200 md:w-10" />}
+                <motion.span
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: 'spring', delay: 0.15 * k }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <span className={`grid size-16 place-items-center rounded-full border-b-[6px] text-white ${s.c}`}>{s.i}</span>
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">{s.t}</span>
+                </motion.span>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Secao>
 
-      {/* FEATURES */}
-      <section className="py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="mb-16 text-center space-y-3">
-            <h2 className="text-4xl lg:text-5xl font-black text-gray-950 tracking-tight">Correção de verdade</h2>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto">Não é um corretor genérico. É uma IA treinada especificamente para o ENEM.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Planos */}
+        <section className="bg-slate-50 px-6 py-16 md:py-24">
+          <motion.h2 {...reveal} className="text-center text-3xl font-extrabold text-slate-800 md:text-4xl">
+            Comece grátis. Treine mais com <span className="text-red-600">créditos</span>.
+          </motion.h2>
+          <div className="mx-auto mt-10 grid max-w-3xl gap-5 md:grid-cols-2">
             {[
-              { icon: <Target className="w-7 h-7" />, title: 'Nota nas 5 Competências', desc: 'Cada competência (C1 a C5) recebe uma nota individual de 0 a 200, com justificativa detalhada.', color: 'from-red-500 to-red-600' },
-              { icon: <BookOpen className="w-7 h-7" />, title: 'Manual do INEP Embutido', desc: 'A IA foi calibrada com os documentos oficiais de correção do INEP, não com achismos.', color: 'from-amber-500 to-amber-600' },
-              { icon: <PenTool className="w-7 h-7" />, title: 'Sugestões de Reescrita', desc: 'Cada trecho com problema recebe uma proposta de reescrita para você entender o erro.', color: 'from-indigo-500 to-indigo-600' },
-              { icon: <TrendingUp className="w-7 h-7" />, title: 'Histórico de Evolução', desc: 'Acompanhe sua curva de notas ao longo do tempo e veja quais competências estão melhorando.', color: 'from-emerald-500 to-emerald-600' },
-              { icon: <Zap className="w-7 h-7" />, title: 'Resultado em 30 Segundos', desc: 'Enquanto cursinho leva 7 dias para devolver, nós entregamos em menos de meio minuto.', color: 'from-purple-500 to-purple-600' },
-              { icon: <Shield className="w-7 h-7" />, title: 'Privacidade Total', desc: 'Sua redação não é armazenada nem usada para treinar modelos. Texto processado e descartado.', color: 'from-slate-700 to-slate-800' },
-            ].map((f, i) => (
-              <div key={i} className="h-full p-8 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-6 bg-gradient-to-br ${f.color} shadow-md`}>{f.icon}</div>
-                <h3 className="text-xl font-bold text-gray-950 mb-3">{f.title}</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">{f.desc}</p>
-              </div>
+              { t: 'Grátis', p: 'R$ 0', f: ['3 correções para começar', 'Nota nas 5 competências', 'Sugestões de reescrita', 'Correção por foto do caderno'], destaque: false },
+              { t: 'Pacote 10', p: 'R$ 29,90', f: ['+10 correções completas', 'Pagamento único via PIX', 'Histórico de redações', 'Tudo do plano grátis'], destaque: true },
+            ].map(pl => (
+              <motion.div
+                key={pl.t}
+                {...reveal}
+                className={`rounded-3xl border-2 border-b-4 bg-white p-6 ${pl.destaque ? 'border-red-300' : 'border-slate-200'}`}
+              >
+                <h3 className={`text-xl font-extrabold ${pl.destaque ? 'text-red-600' : 'text-slate-800'}`}>{pl.t}</h3>
+                <p className="mt-1 text-2xl font-extrabold text-slate-800">{pl.p}</p>
+                <ul className="mt-4 space-y-2">
+                  {pl.f.map(f => (
+                    <li key={f} className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                      <Check className="size-4 shrink-0 text-emerald-500" aria-hidden /> {f}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* PRICING */}
-      <section className="py-32 bg-gray-950 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3 w-[600px] h-[600px] bg-red-600/15 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[600px] h-[600px] bg-amber-600/15 blur-[120px] rounded-full pointer-events-none" />
+        {/* CTA final */}
+        <section className="bg-red-600 px-6 py-16 text-center md:py-24">
+          <motion.div {...reveal} className="mx-auto max-w-xl">
+            <span className="mx-auto mb-6 grid size-20 place-items-center rounded-3xl border-b-[6px] border-amber-600 bg-amber-400 text-4xl" aria-hidden>✍️</span>
+            <h2 className="text-3xl font-extrabold text-white md:text-4xl">Bora escrever a próxima nota 1000?</h2>
+            <p className="mt-3 text-lg text-red-100">Crie sua conta em menos de 1 minuto e corrija sua primeira redação.</p>
+            <Link href="/signup" className={`${btn3d} mt-8 w-full max-w-xs border-b-4 border-amber-600 bg-amber-400 text-slate-900 hover:bg-amber-300`}>
+              Corrigir grátis
+            </Link>
+          </motion.div>
+        </section>
 
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16 space-y-3">
-            <h2 className="text-4xl lg:text-5xl font-black tracking-tight">Planos para cada nível de preparo</h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">Comece grátis com 3 correções. Evolua quando sentir que precisa.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Básico */}
-            <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-10 flex flex-col">
-              <h3 className="text-2xl font-bold text-white mb-2">Plano Estudante</h3>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-5xl font-black text-white">R$ 15</span>
-                <span className="text-gray-400">/mês</span>
-              </div>
-              <p className="text-xs text-emerald-400 font-medium mb-8">3 correções grátis para testar</p>
-              <ul className="space-y-4 mb-10 flex-1">
-                {['Até 20 correções por mês', 'Nota nas 5 competências (C1-C5)', 'Feedback detalhado com erros destacados', 'Sugestões de reescrita por trecho', 'Histórico das últimas 10 redações'].map(item => (
-                  <li key={item} className="flex gap-3 text-gray-200 items-start text-sm">
-                    <CheckCircle2 className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                    <span className="leading-tight">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full h-14 rounded-full bg-red-600 hover:bg-red-500 text-white font-extrabold text-lg shadow-[0_0_40px_rgba(220,38,38,0.3)] transition-all">
-                Assinar Estudante
-              </button>
-            </div>
-
-            {/* Pro */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10 flex flex-col relative">
-              <div className="absolute top-0 right-0 p-6">
-                <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full">Mais Popular</div>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Plano Vestibulanda</h3>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-5xl font-black text-white">R$ 30</span>
-                <span className="text-gray-400">/mês</span>
-              </div>
-              <p className="text-xs text-emerald-400 font-medium mb-8">Para quem quer a nota 1000 de verdade</p>
-              <ul className="space-y-4 mb-10 flex-1">
-                {['Tudo do Plano Estudante', 'Correções ilimitadas', 'Comparação com redações nota 1000', 'Plano de estudos personalizado pela IA', 'Gráficos de evolução por competência', 'Modo simulado (timer de 5h30)', 'Suporte prioritário'].map(item => (
-                  <li key={item} className="flex gap-3 text-gray-200 items-start text-sm">
-                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                    <span className="leading-tight">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="w-full h-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-lg shadow-[0_0_40px_rgba(245,158,11,0.3)] transition-all">
-                Assinar Vestibulanda
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-24">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl font-extrabold text-gray-950 text-center mb-12">Perguntas Frequentes</h2>
-          <FAQItem q="A correção é realmente confiável?" a="Sim. A IA foi treinada com base nos editais e manuais oficiais de correção do INEP (ENEM), VUNESP, FCC, CESPE e FGV. A nota gerada reflete o rigor exigido por cada banca." />
-          <FAQItem q="Posso enviar foto da redação escrita à mão?" a="Sim. O sistema aceita texto digitado ou imagem fotografada do caderno. A IA usa visão computacional para extrair o texto antes de corrigir." />
-          <FAQItem q="Minha redação fica armazenada?" a="Não. O texto é processado em memória e descartado após a geração do relatório. Nenhum dado é usado para treinamento de modelos." />
-          <FAQItem q="Funciona para outros vestibulares além do ENEM?" a="Sim! O sistema agora é multi-banca. Você pode selecionar ENEM, VUNESP, FCC, CESPE/CEBRASPE ou FGV antes de enviar seu texto." />
-          <FAQItem q="Posso cancelar a assinatura a qualquer momento?" a="Sim, sem multa e sem burocracia. Basta ir nas configurações da sua conta." />
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-white border-t border-gray-200 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-red-600 rounded-md flex items-center justify-center text-white">
-              <PenTool className="w-3.5 h-3.5" />
-            </div>
-            <span className="font-extrabold text-gray-950 text-lg tracking-tight">Redação <span className="text-red-600">Nota 10</span> <span className="text-amber-500">AÍ</span></span>
-          </div>
-          <p className="text-gray-400 text-sm font-medium">
-            © {new Date().getFullYear()} AÍ Tecnologia e Educação Ltda. Todos os direitos reservados.
-          </p>
-        </div>
-      </footer>
-    </div>
+        <footer className="bg-red-700 px-6 py-8 text-center text-sm text-red-200">
+          <p>© {new Date().getFullYear()} <strong className="text-white">AÍ Tecnologia e Educação Ltda.</strong> — Todos os direitos reservados.</p>
+        </footer>
+      </div>
+    </MotionConfig>
   )
 }

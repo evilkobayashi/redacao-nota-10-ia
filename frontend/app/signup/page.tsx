@@ -15,9 +15,18 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ text: '', type: '' })
+  const [acceptTerms, setAcceptTerms] = useState(false)
+  const [acceptAge, setAcceptAge] = useState(false)
 
   async function handleGoogleSignUp() {
     setLoading(true)
+
+    if (!acceptTerms || !acceptAge) {
+      setMessage({ text: "Você precisa aceitar os termos e declarar ter mais de 18 anos.", type: 'error' })
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -33,6 +42,13 @@ export default function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
+
+    if (!acceptTerms || !acceptAge) {
+      setMessage({ text: "Você precisa aceitar os termos e declarar ter mais de 18 anos.", type: 'error' })
+      setLoading(false)
+      return
+    }
+
     setMessage({ text: '', type: '' })
     
     const { error } = await supabase.auth.signUp({ 

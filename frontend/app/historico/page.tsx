@@ -38,8 +38,21 @@ export default function Historico() {
           {history.map((item, i) => (
             <div key={i} className="border p-4 rounded-lg shadow-sm bg-white">
               <h3 className="font-bold text-lg">{item.tema}</h3>
-              <p className="text-sm text-gray-500 mb-2">Banca: {item.banca} - Nota: {item.nota_total}/{item.nota_maxima}</p>
-              <p className="text-sm line-clamp-2 italic text-gray-600">"{item.raw_text}"</p>
+              <p className="text-sm text-gray-500 mb-2">Banca: {item.banca} - Nota: {item.nota_total}/{item.nota_maxima} - Status: {item.status}</p>
+              <p className="text-sm line-clamp-2 italic text-gray-600 mb-2">"{item.raw_text}"</p>
+              {item.status === 'review_pending' && (
+                <button 
+                  onClick={async () => {
+                    const res = await fetch(`https://redacao-nota-10-backend-production.up.railway.app/api/redacao/aprovar/${item.id}`, { method: 'PUT' })
+                    if (res.ok) {
+                      setHistory(h => h.map(x => x.id === item.id ? { ...x, status: 'done' } : x))
+                    }
+                  }}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                >
+                  Aprovar Nota
+                </button>
+              )}
             </div>
           ))}
         </div>

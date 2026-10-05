@@ -54,7 +54,8 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
             tema=payload.tema, 
             texto=texto_para_avaliar,
             banca=payload.banca,
-            is_plagio=plagio_info["is_plagio"]
+            is_plagio=plagio_info["is_plagio"],
+            nome_aluno=payload.aluno_nome
         )
         
         # Injetar metadados de plágio e OCR no resultado
@@ -76,7 +77,8 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
                 "feedback_json": resultado.model_dump(),
                 "nota_total": resultado.nota_total,
                 "nota_maxima": resultado.nota_maxima_possivel,
-                "is_plagio": resultado.is_plagio
+                "is_plagio": resultado.is_plagio,
+                "status": "review_pending"
             }
             db.table("redacao_submissions").insert(insercao).execute()
             
@@ -159,3 +161,13 @@ async def get_history(user_id: str):
         return res.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/aprovar/{submission_id}")
+async def aprovar_redacao(submission_id: str):
+    try:
+        db = get_supabase_client()
+        db.table("redacao_submissions").update({"status": "done"}).eq("id", submission_id).execute()
+        return {"message": "Aprovado com sucesso"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

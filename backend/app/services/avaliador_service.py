@@ -70,11 +70,14 @@ async def extrair_texto_ocr(image_base64: str) -> str:
         logger.error(f"Erro OCR Gemini: {e}")
         raise ValueError("Não foi possível processar a imagem do manuscrito.")
 
-async def avaliar_redacao_gemini(tema: str, texto: str, banca: str = "ENEM", is_plagio: bool = False) -> AvaliacaoRedacao:
+async def avaliar_redacao_gemini(tema: str, texto: str, banca: str = "ENEM", is_plagio: bool = False, nome_aluno: str = None) -> AvaliacaoRedacao:
     """
     Chama a API do Google Gemini 1.5 Pro utilizando o Structured Outputs 
     para garantir que a IA devolva exatamente o Pydantic format `AvaliacaoRedacao`.
     """
+    if nome_aluno:
+        import re
+        texto = re.sub(re.escape(nome_aluno), "[NOME_OCULTO_LGPD]", texto, flags=re.IGNORECASE)
     api_key = os.getenv("GEMINI_API_KEY")
     
     # Se a chave não existir (ambiente de desenvolvimento local), retornamos um Mock imediato.

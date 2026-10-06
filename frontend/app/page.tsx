@@ -295,6 +295,16 @@ export default function LandingPage() {
         <footer className="bg-red-700 px-6 py-8 text-center text-sm text-red-200">
           <p>© {new Date().getFullYear()} <strong className="text-white">AÍ Tecnologia e Educação Ltda.</strong> — Todos os direitos reservados.</p>
         </footer>
+
+{/* Disclaimer CDC */}
+<div className="w-full bg-gray-900 text-gray-400 py-6 text-center text-xs px-4">
+  <p className="max-w-4xl mx-auto">
+    Aviso Legal: Esta plataforma é uma ferramenta de <strong>assistência pedagógica baseada em Inteligência Artificial</strong>. 
+    Não garantimos resultados acadêmicos absolutos, notas ou aprovação automática. O uso das ferramentas requer supervisão 
+    do educador ou responsável legal.
+  </p>
+</div>
+
       </div>
     </MotionConfig>
   )

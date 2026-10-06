@@ -16,6 +16,7 @@ export function RedacaoForm() {
   const [banca, setBanca] = useState("ENEM")
   const [tema, setTema] = useState("")
   const [texto, setTexto] = useState("")
+  const [acceptCopyright, setAcceptCopyright] = useState(false);
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [imageName, setImageName] = useState<string | null>(null)
   
@@ -138,7 +139,7 @@ export function RedacaoForm() {
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
               value={banca}
               onChange={(e) => setBanca(e.target.value)}
-              disabled={isLoading}
+              disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
             >
               {BANCAS_DISPONIVEIS.map(b => (
                 <option key={b.id} value={b.id}>{b.label}</option>
@@ -154,7 +155,7 @@ export function RedacaoForm() {
               placeholder="Ex: Os desafios da inteligência artificial na educação..."
               value={tema}
               onChange={(e) => setTema(e.target.value)}
-              disabled={isLoading}
+              disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
             />
           </div>
 
@@ -167,7 +168,7 @@ export function RedacaoForm() {
                 placeholder="Escreva sua redação aqui OU envie uma foto da folha pautada logo abaixo..."
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                disabled={isLoading}
+                disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
               />
             ) : (
               <div className="w-full h-56 p-3 border border-indigo-200 bg-indigo-50 rounded-lg flex flex-col items-center justify-center text-indigo-700 text-sm">
@@ -203,9 +204,20 @@ export function RedacaoForm() {
             )}
           </div>
 
-          <button 
+          
+              {/* Proteção de Direitos Autorais (LGPD/Copyright) */}
+              {(false !== 'undefined' && false) || (typeof imageBase64 !== 'undefined' && imageBase64) ? (
+                <label className="flex items-start gap-2 mt-4 cursor-pointer">
+                  <input type="checkbox" checked={acceptCopyright} onChange={(e) => setAcceptCopyright(e.target.checked)} className="mt-1 w-4 h-4" />
+                  <span className="text-xs text-gray-500">
+                    Declaro possuir os direitos autorais ou licença de uso deste material.
+                  </span>
+                </label>
+              ) : null}
+
+<button 
             type="submit" 
-            disabled={isLoading || (!texto && !imageBase64)}
+            disabled={(!acceptCopyright && (file || imageBase64)) || isLoading || (!texto && !imageBase64)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors disabled:opacity-70"
           >
             {isLoading ? (

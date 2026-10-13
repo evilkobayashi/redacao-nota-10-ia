@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Loader2, PenTool, AlertCircle, BookOpen, ArrowRight, BookMarked, GraduationCap, Image as ImageIcon, Download, FileWarning } from "lucide-react"
 import { createClient } from '../utils/supabase/client'
+import { authHeaders } from '../utils/authHeaders'
 
 const BANCAS_DISPONIVEIS = [
   { id: "ENEM", label: "ENEM (Exame Nacional do Ensino Médio)" },
@@ -62,11 +63,10 @@ export function RedacaoForm() {
       const payload: any = { tema, banca }
       if (texto) payload.texto = texto
       if (imageBase64) payload.image_base64 = imageBase64
-      if (user) payload.user_id = user.id
 
       const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/avaliar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await authHeaders()) },
         body: JSON.stringify(payload)
       })
 
@@ -90,7 +90,7 @@ export function RedacaoForm() {
     try {
       const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/exportar-pdf", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(await authHeaders()) },
         body: JSON.stringify(resultado)
       })
       if (!res.ok) throw new Error("Erro ao gerar PDF")

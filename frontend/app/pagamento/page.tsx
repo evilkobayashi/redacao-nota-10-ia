@@ -2,14 +2,20 @@
 import { useState } from 'react'
 import { createClient } from '../../utils/supabase/client'
 import Link from 'next/link'
+import { authHeaders } from '../../utils/authHeaders'
 
 export default function Pagamento() {
   const [loading, setLoading] = useState(false)
+  const [cpf, setCpf] = useState('')
   const [qrCode, setQrCode] = useState<string | null>(null)
   const [payload, setPayload] = useState<string | null>(null)
   const supabase = createClient()
 
   const handleCheckout = async () => {
+    if (cpf.replace(/\D/g, '').length !== 11 && cpf.replace(/\D/g, '').length !== 14) {
+      alert("Informe um CPF ou CNPJ válido.")
+      return
+    }
     setLoading(true)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -21,8 +27,8 @@ export default function Pagamento() {
     try {
       const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/pagamento/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: user.id, email: user.email, name: user.user_metadata?.full_name || "Aluno" })
+        headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+        body: JSON.stringify({ user_id: user.id, email: user.email, name: user.user_metadata?.full_name || "Aluno", cpf_cnpj: cpf })
       })
       if (res.ok) {
         const data = await res.json()
@@ -43,9 +49,12 @@ export default function Pagamento() {
       <p className="text-gray-600 mb-8">Invista no seu futuro. Correção cirúrgica com IA para o ENEM.</p>
       
       {!qrCode ? (
+        <>
+        <input value={cpf} onChange={e => setCpf(e.target.value)} placeholder="CPF ou CNPJ" aria-label="CPF ou CNPJ" inputMode="numeric" className="block mx-auto mb-4 w-64 p-2 border rounded" />
         <button onClick={handleCheckout} disabled={loading} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700">
           {loading ? "Gerando Pix..." : "Comprar por R$ 29,90"}
         </button>
+        </>
       ) : (
         <div className="bg-white p-6 rounded-xl border shadow-sm">
           <h2 className="font-bold text-green-700 mb-4">Escaneie o QR Code para pagar</h2>

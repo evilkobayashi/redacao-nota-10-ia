@@ -59,7 +59,7 @@ async def extrair_texto_ocr(image_base64: str) -> str:
     
     try:
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model=os.getenv("GEMINI_OCR_MODEL", "gemini-2.5-flash"),
             contents=[
                 types.Part.from_bytes(data=img_data, mime_type='image/jpeg'),
                 "Transcreva exatamente o texto manuscrito desta imagem. Não corrija erros, apenas transcreva."
@@ -97,7 +97,7 @@ async def avaliar_redacao_gemini(tema: str, texto: str, banca: str = "ENEM", is_
         # A SDK `google-genai` permite passar o schema Pydantic diretamente, 
         # o que elimina o risco do LLM errar o formato do JSON.
         response = client.models.generate_content(
-            model='gemini-1.5-pro',
+            model=os.getenv("GEMINI_EVAL_MODEL", "gemini-2.5-pro"),
             contents=prompt_usuario,
             config=types.GenerateContentConfig(
                 system_instruction=prompt_sistema,

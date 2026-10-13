@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '../../utils/supabase/client'
 import Link from 'next/link'
+import { authHeaders } from '../../utils/authHeaders'
 
 export default function Historico() {
   const [history, setHistory] = useState<any[]>([])
@@ -12,7 +13,7 @@ export default function Historico() {
     async function fetchHistory() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const res = await fetch(`https://redacao-nota-10-backend-production.up.railway.app/api/redacao/history/${user.id}`)
+        const res = await fetch(`https://redacao-nota-10-backend-production.up.railway.app/api/redacao/history/${user.id}`, { headers: await authHeaders() })
         if (res.ok) {
           const data = await res.json()
           setHistory(data)
@@ -43,7 +44,7 @@ export default function Historico() {
               {item.status === 'review_pending' && (
                 <button 
                   onClick={async () => {
-                    const res = await fetch(`https://redacao-nota-10-backend-production.up.railway.app/api/redacao/aprovar/${item.id}`, { method: 'PUT' })
+                    const res = await fetch(`https://redacao-nota-10-backend-production.up.railway.app/api/redacao/aprovar/${item.id}`, { method: 'PUT', headers: await authHeaders() })
                     if (res.ok) {
                       setHistory(h => h.map(x => x.id === item.id ? { ...x, status: 'done' } : x))
                     }

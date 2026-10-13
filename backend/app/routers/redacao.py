@@ -1,7 +1,8 @@
 import logging
 import base64
 import json
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Response, Depends
+from app.auth import get_user_id
 from pydantic import BaseModel
 from app.models.avaliacao import RedacaoSubmit, AvaliacaoRedacao
 from app.services.avaliador_service import avaliar_redacao_gemini, verificar_plagio, extrair_texto_ocr
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/redacao", tags=["Redação"])
 
 @router.post("/avaliar", response_model=AvaliacaoRedacao)
-async def avaliar_endpoint(payload: RedacaoSubmit):
+async def avaliar_endpoint(payload: RedacaoSubmit, user_id: str = Depends(get_user_id)):
     """
     Recebe o tema e o texto da redação (ou imagem manuscrita),
     verifica plágio, avalia via Gemini e salva no Supabase.
@@ -21,13 +22,10 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
         raise HTTPException(status_code=400, detail="Obrigatório enviar o texto ou a imagem (Base64).")
         
     db = get_supabase_client()
-    user_id = payload.user_id
-    
-    if user_id:
-        res = db.table("user_credits").select("credits").eq("user_id", user_id).execute()
-        creditos = res.data[0]["credits"] if res.data else 3
-        if creditos <= 0:
-            raise HTTPException(status_code=403, detail="Você não tem mais correções disponíveis. Adquira o plano PRO.")
+    res = db.table("user_credits").select("credits").eq("user_id", user_id).execute()
+    creditos = res.data[0]["credits"] if res.data else 3
+    if creditos <= 0:
+        raise HTTPException(status_code=403, detail="Você não tem mais correções disponíveis. Adquira o plano PRO.")
     
     texto_para_avaliar = payload.texto
     texto_ocr = None
@@ -68,7 +66,7 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
             db = get_supabase_client()
             
             insercao = {
-                "user_id": payload.user_id,
+                "user_id": user_id,
                 "tema": payload.tema,
                 "banca": payload.banca,
                 "raw_text": texto_para_avaliar,
@@ -100,7 +98,7 @@ async def avaliar_endpoint(payload: RedacaoSubmit):
 
 
 @router.post("/exportar-pdf")
-async def exportar_pdf(avaliacao: AvaliacaoRedacao):
+async def exportar_pdf(avaliacao: AvaliacaoRedacao, _: str = Depends(get_user_id)):
     """
     Gera um relatório profissional em PDF com as notas, 
     correções e referências de leitura.
@@ -153,7 +151,9 @@ async def exportar_pdf(avaliacao: AvaliacaoRedacao):
     )
 
 @router.get("/history/{user_id}")
-async def get_history(user_id: str):
+async def get_history(user_id: str, auth_uid: str = Depends(get_user_id)):
+    if user_id != auth_uid:
+        raise HTTPException(status_code=403, detail="Acesso negado.")
     try:
         db = get_supabase_client()
         res = db.table("redacao_submissions").select("*").eq("user_id", user_id).execute()
@@ -163,10 +163,10 @@ async def get_history(user_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/aprovar/{submission_id}")
-async def aprovar_redacao(submission_id: str):
+async def aprovar_redacao(submission_id: str, auth_uid: str = Depends(get_user_id)):
     try:
         db = get_supabase_client()
-        db.table("redacao_submissions").update({"status": "done"}).eq("id", submission_id).execute()
+        db.table("redacao_submissions").update({"status": "done"}).eq("id", submission_id).eq("user_id", auth_uid).execute()
         return {"message": "Aprovado com sucesso"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -54,7 +54,7 @@ async def asaas_webhook(request: Request, asaas_access_token: str = Header(defau
     payload = await request.json()
     event = payload.get("event")
     
-    if event in ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"]:
+    if event == "PAYMENT_RECEIVED":
         payment = payload.get("payment", {})
         user_id = payment.get("externalReference")
         

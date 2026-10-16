@@ -167,6 +167,33 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              <div className="space-y-2 pt-2 text-xs text-gray-600">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptTerms}
+                    onChange={(e) => setAcceptTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  />
+                  <span>
+                    Li e aceito os{' '}
+                    <Link href="/termos" className="text-red-600 font-semibold hover:underline">Termos de Uso</Link> e a{' '}
+                    <Link href="/privacidade" className="text-red-600 font-semibold hover:underline">Política de Privacidade</Link>.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptAge}
+                    onChange={(e) => setAcceptAge(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  />
+                  <span>
+                    Declaro ter 18 anos ou mais (ou estar assistido por responsável legal).
+                  </span>
+                </label>
+              </div>
+
               {message.text && (
                 <p className={`text-sm text-center ${message.type === 'error' ? 'text-red-500' : 'text-blue-500'}`}>{message.text}</p>
               )}

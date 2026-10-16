@@ -13,6 +13,8 @@ const BANCAS_DISPONIVEIS = [
   { id: "FGV", label: "FGV (Fundação Getulio Vargas)" }
 ]
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://redacao-nota-10-backend-production.up.railway.app"
+
 export function RedacaoForm() {
   const [banca, setBanca] = useState("ENEM")
   const [tema, setTema] = useState("")
@@ -64,7 +66,7 @@ export function RedacaoForm() {
       if (texto) payload.texto = texto
       if (imageBase64) payload.image_base64 = imageBase64
 
-      const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/avaliar", {
+      const res = await fetch(`${API_URL}/api/redacao/avaliar`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(await authHeaders()) },
         body: JSON.stringify(payload)
@@ -88,7 +90,7 @@ export function RedacaoForm() {
     if (!resultado) return
     setIsDownloading(true)
     try {
-      const res = await fetch("https://redacao-nota-10-backend-production.up.railway.app/api/redacao/exportar-pdf", {
+      const res = await fetch(`${API_URL}/api/redacao/exportar-pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(await authHeaders()) },
         body: JSON.stringify(resultado)
@@ -139,7 +141,7 @@ export function RedacaoForm() {
               className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
               value={banca}
               onChange={(e) => setBanca(e.target.value)}
-              disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
+              disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading}
             >
               {BANCAS_DISPONIVEIS.map(b => (
                 <option key={b.id} value={b.id}>{b.label}</option>
@@ -155,7 +157,7 @@ export function RedacaoForm() {
               placeholder="Ex: Os desafios da inteligência artificial na educação..."
               value={tema}
               onChange={(e) => setTema(e.target.value)}
-              disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
+              disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading}
             />
           </div>
 
@@ -168,7 +170,7 @@ export function RedacaoForm() {
                 placeholder="Escreva sua redação aqui OU envie uma foto da folha pautada logo abaixo..."
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
-                disabled={(!acceptCopyright && (file || imageBase64)) || isLoading}
+                disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading}
               />
             ) : (
               <div className="w-full h-56 p-3 border border-indigo-200 bg-indigo-50 rounded-lg flex flex-col items-center justify-center text-indigo-700 text-sm">
@@ -204,20 +206,19 @@ export function RedacaoForm() {
             )}
           </div>
 
-          
-              {/* Proteção de Direitos Autorais (LGPD/Copyright) */}
-              {(false !== 'undefined' && false) || (typeof imageBase64 !== 'undefined' && imageBase64) ? (
-                <label className="flex items-start gap-2 mt-4 cursor-pointer">
-                  <input type="checkbox" checked={acceptCopyright} onChange={(e) => setAcceptCopyright(e.target.checked)} className="mt-1 w-4 h-4" />
-                  <span className="text-xs text-gray-500">
-                    Declaro possuir os direitos autorais ou licença de uso deste material.
-                  </span>
-                </label>
-              ) : null}
+          {/* Proteção de Direitos Autorais (LGPD/Copyright) */}
+          {imageBase64 ? (
+            <label className="flex items-start gap-2 mt-4 cursor-pointer">
+              <input type="checkbox" checked={acceptCopyright} onChange={(e) => setAcceptCopyright(e.target.checked)} className="mt-1 w-4 h-4" />
+              <span className="text-xs text-gray-500">
+                Declaro possuir os direitos autorais ou licença de uso deste material.
+              </span>
+            </label>
+          ) : null}
 
-<button 
+          <button 
             type="submit" 
-            disabled={(!acceptCopyright && (file || imageBase64)) || isLoading || (!texto && !imageBase64)}
+            disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading || (!texto && !imageBase64)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors disabled:opacity-70"
           >
             {isLoading ? (
@@ -300,6 +301,15 @@ export function RedacaoForm() {
                   </div>
                   <p className="text-sm text-slate-600 leading-relaxed mb-3">{crit.comentarios}</p>
                   
+                  {crit.pontos_fortes?.length > 0 && (
+                    <div className="mt-2">
+                      <strong className="text-xs text-emerald-600 uppercase tracking-wide">Pontos Fortes:</strong>
+                      <ul className="list-disc list-inside text-sm text-slate-600 mt-1">
+                        {crit.pontos_fortes.map((p: string, i: number) => <li key={i}>{p}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
                   {crit.pontos_melhoria?.length > 0 && (
                     <div className="mt-2">
                       <strong className="text-xs text-rose-600 uppercase tracking-wide">Atenção:</strong>
@@ -311,6 +321,32 @@ export function RedacaoForm() {
                 </div>
               ))}
             </div>
+
+            {/* Marcações Inline (Trecho Original -> Trecho Corrigido) */}
+            {resultado.marcacoes?.length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 p-5 rounded-xl mt-6">
+                <div className="flex items-center gap-2 text-amber-800 font-bold mb-3">
+                  <PenTool className="w-5 h-5" /> Correções Cirúrgicas no Texto
+                </div>
+                <div className="space-y-3">
+                  {resultado.marcacoes.map((m: any, i: number) => (
+                    <div key={i} className="bg-white p-3 rounded-lg border border-amber-100 text-sm">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="line-through text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{m.trecho_original}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">{m.trecho_corrigido}</span>
+                        {m.tipo_erro && (
+                          <span className="text-xs uppercase font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full ml-auto">
+                            {m.tipo_erro}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 mt-1">{m.explicacao}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Referências de Leitura */}
             {resultado.referencias_leitura && resultado.referencias_leitura.length > 0 && !resultado.is_plagio && (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Loader2, PenTool, AlertCircle, BookOpen, ArrowRight, BookMarked, GraduationCap, Image as ImageIcon, Download, FileWarning } from "lucide-react"
 import { createClient } from '../utils/supabase/client'
 import { authHeaders } from '../utils/authHeaders'
@@ -128,8 +129,18 @@ export function RedacaoForm() {
 
         <form onSubmit={handleSubmeter} className="space-y-5">
           {erro && (
-            <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" /> {erro}
+            <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg space-y-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" /> <span>{erro}</span>
+              </div>
+              {(erro.includes("correções disponíveis") || erro.includes("plano PRO")) && (
+                <Link
+                  href="/pagamento"
+                  className="inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Comprar +10 Correções (PIX R$ 29,90)
+                </Link>
+              )}
             </div>
           )}
 

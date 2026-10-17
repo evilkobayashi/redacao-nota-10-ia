@@ -256,25 +256,32 @@ export default function LandingPage() {
           <motion.h2 {...reveal} className="text-center text-3xl font-extrabold text-slate-800 md:text-4xl">
             Comece grátis. Treine mais com <span className="text-red-600">créditos</span>.
           </motion.h2>
-          <div className="mx-auto mt-10 grid max-w-3xl gap-5 md:grid-cols-2">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-3">
             {[
-              { t: 'Grátis', p: 'R$ 0', f: ['3 correções para começar', 'Nota nas 5 competências', 'Sugestões de reescrita', 'Correção por foto do caderno'], destaque: false },
-              { t: 'Pacote 10', p: 'R$ 29,90', f: ['+10 correções completas', 'Pagamento único via PIX', 'Histórico de redações', 'Tudo do plano grátis'], destaque: true },
+              { t: 'Grátis', p: 'R$ 0', obs: 'Degustação inicial', f: ['3 correções para começar', 'Nota nas 5 competências', 'Sugestões de reescrita', 'Correção por foto do caderno'], destaque: false, link: '/signup' },
+              { t: 'Pacote 10', p: 'R$ 29,90', obs: 'R$ 2,99 / redação', f: ['+10 correções completas', 'Pagamento único via PIX', 'Histórico de redações', 'Exportação em PDF'], destaque: false, link: '/pagamento' },
+              { t: 'Intensivo 30', p: 'R$ 59,90', obs: 'R$ 1,99 / redação · economize 33%', f: ['+30 correções completas', 'Foco Reta Final ENEM', 'Pagamento único via PIX', 'Tudo do Pacote 10'], destaque: true, link: '/pagamento' },
             ].map(pl => (
               <motion.div
                 key={pl.t}
                 {...reveal}
-                className={`rounded-3xl border-2 border-b-4 bg-white p-6 ${pl.destaque ? 'border-red-300' : 'border-slate-200'}`}
+                className={`flex flex-col justify-between rounded-3xl border-2 border-b-4 bg-white p-6 ${pl.destaque ? 'border-red-400 shadow-md shadow-red-500/10' : 'border-slate-200'}`}
               >
-                <h3 className={`text-xl font-extrabold ${pl.destaque ? 'text-red-600' : 'text-slate-800'}`}>{pl.t}</h3>
-                <p className="mt-1 text-2xl font-extrabold text-slate-800">{pl.p}</p>
-                <ul className="mt-4 space-y-2">
-                  {pl.f.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                      <Check className="size-4 shrink-0 text-emerald-500" aria-hidden /> {f}
-                    </li>
-                  ))}
-                </ul>
+                <div>
+                  <h3 className={`text-xl font-extrabold ${pl.destaque ? 'text-red-600' : 'text-slate-800'}`}>{pl.t}</h3>
+                  <p className="mt-1 text-2xl font-extrabold text-slate-800">{pl.p}</p>
+                  <p className={`text-xs font-bold mt-0.5 ${pl.destaque ? 'text-red-600' : 'text-slate-400'}`}>{pl.obs}</p>
+                  <ul className="mt-4 space-y-2">
+                    {pl.f.map(f => (
+                      <li key={f} className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                        <Check className="size-4 shrink-0 text-emerald-500" aria-hidden /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link href={pl.link} className={`mt-6 block text-center py-2.5 px-4 rounded-xl font-bold text-sm transition-colors ${pl.destaque ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'}`}>
+                  {pl.t === 'Grátis' ? 'Começar Grátis' : `Comprar ${pl.t}`}
+                </Link>
               </motion.div>
             ))}
           </div>

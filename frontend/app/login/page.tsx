@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { PenTool, Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react'
@@ -13,7 +13,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const [message, setMessage] = useState({ text: '', type: '' })
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        router.replace('/dashboard')
+      } else {
+        setCheckingAuth(false)
+      }
+    }).catch(() => {
+      setCheckingAuth(false)
+    })
+  }, [router, supabase])
 
   async function handleGoogleSignIn() {
     setLoading(true)
@@ -42,6 +55,14 @@ export default function LoginPage() {
     } else {
       router.push('/dashboard')
     }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-white">
+        <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

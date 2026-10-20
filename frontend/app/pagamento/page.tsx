@@ -1,18 +1,36 @@
 "use client"
-import { useState } from 'react'
-import { createClient } from '../../utils/supabase/client'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { authHeaders } from '../../utils/authHeaders'
+import { authHeaders } from '@/utils/authHeaders'
+import { DashboardNav } from '@/components/DashboardNav'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://redacao-nota-10-backend-production.up.railway.app"
 
 export default function Pagamento() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const [user, setUser] = useState<any>(null)
   const [cpf, setCpf] = useState('')
   const [pacote, setPacote] = useState<'pacote_10' | 'pacote_30'>('pacote_30')
   const [qrCode, setQrCode] = useState<string | null>(null)
   const [payload, setPayload] = useState<string | null>(null)
   const supabase = createClient()
+
+  useEffect(() => {
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.replace('/login')
+        return
+      }
+      setUser(user)
+      setCheckingAuth(false)
+    }
+    checkUser()
+  }, [router, supabase])
 
   const handleCheckout = async () => {
     if (cpf.replace(/\D/g, '').length !== 11 && cpf.replace(/\D/g, '').length !== 14) {
@@ -46,19 +64,21 @@ export default function Pagamento() {
     setLoading(false)
   }
 
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <nav className="flex items-center justify-between bg-white px-6 py-4 rounded-xl shadow-sm border border-slate-200 mb-8">
-          <Link href="/dashboard" className="font-black text-slate-900 text-lg">
-            Redação <span className="text-blue-600">Nota 10 AÍ</span>
-          </Link>
-          <div className="flex items-center gap-4 text-sm font-semibold">
-            <Link href="/dashboard" className="text-slate-600 hover:text-slate-900">Nova Redação</Link>
-            <Link href="/historico" className="text-slate-600 hover:text-slate-900">Histórico</Link>
-            <Link href="/pagamento" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">Comprar Créditos</Link>
-          </div>
-        </nav>
+    <div className="min-h-screen bg-gray-50/70 p-4 sm:p-6">
+      <div className="max-w-5xl mx-auto">
+        <DashboardNav
+          userName={user?.user_metadata?.full_name}
+          userEmail={user?.email}
+        />
 
         <div className="max-w-xl mx-auto p-8 sm:p-12 text-center bg-white rounded-xl border border-slate-200 shadow-sm">
           <h1 className="text-3xl font-bold mb-2">Comprar Créditos de Redação</h1>

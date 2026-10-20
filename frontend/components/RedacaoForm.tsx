@@ -118,7 +118,7 @@ export function RedacaoForm() {
       {/* Coluna Esquerda: Formulário de Submissão */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+          <div className="p-2 bg-red-100 text-red-700 rounded-lg">
             <PenTool className="w-5 h-5" />
           </div>
           <div>
@@ -136,7 +136,7 @@ export function RedacaoForm() {
               {(erro.includes("correções disponíveis") || erro.includes("plano PRO")) && (
                 <Link
                   href="/pagamento"
-                  className="inline-block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                  className="inline-block w-full text-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
                 >
                   Comprar +10 Correções (PIX R$ 29,90)
                 </Link>
@@ -149,7 +149,7 @@ export function RedacaoForm() {
               <GraduationCap className="w-4 h-4" /> Banca Avaliadora
             </label>
             <select
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none bg-white"
               value={banca}
               onChange={(e) => setBanca(e.target.value)}
               disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading}
@@ -164,7 +164,7 @@ export function RedacaoForm() {
             <label className="text-sm font-semibold text-slate-700">Qual é o tema da redação?</label>
             <input 
               type="text" 
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
               placeholder="Ex: Os desafios da inteligência artificial na educação..."
               value={tema}
               onChange={(e) => setTema(e.target.value)}
@@ -177,7 +177,7 @@ export function RedacaoForm() {
             
             {!imageBase64 ? (
               <textarea 
-                className="w-full h-56 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none leading-relaxed"
+                className="w-full h-56 p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none resize-none leading-relaxed"
                 placeholder="Escreva sua redação aqui OU envie uma foto da folha pautada logo abaixo..."
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
@@ -230,7 +230,7 @@ export function RedacaoForm() {
           <button 
             type="submit" 
             disabled={(!acceptCopyright && Boolean(imageBase64)) || isLoading || (!texto && !imageBase64)}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center gap-2 transition-colors disabled:opacity-70"
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl flex justify-center items-center gap-2 transition-colors disabled:opacity-70 cursor-pointer shadow-sm"
           >
             {isLoading ? (
               <><Loader2 className="w-5 h-5 animate-spin" /> {imageBase64 ? 'Extraindo OCR e Analisando...' : `Analisando Padrão ${banca}...`}</>
@@ -247,7 +247,7 @@ export function RedacaoForm() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header / Nota Final */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center mb-6 relative overflow-hidden">
-              <div className={`absolute top-0 left-0 w-full h-2 ${resultado.is_plagio ? 'bg-red-600' : 'bg-blue-600'}`} />
+              <div className={`absolute top-0 left-0 w-full h-2 ${resultado.is_plagio ? 'bg-amber-600' : 'bg-red-600'}`} />
               
               <div className="absolute top-4 right-4">
                 <button 
@@ -262,7 +262,7 @@ export function RedacaoForm() {
 
               <h3 className="text-slate-500 font-semibold mb-1 uppercase tracking-wider text-sm">Nota Final ({banca})</h3>
               <div className="flex items-baseline justify-center gap-1">
-                <span className={`text-6xl font-black ${resultado.is_plagio ? 'text-red-600' : 'text-blue-700'}`}>
+                <span className={`text-6xl font-black ${resultado.is_plagio ? 'text-amber-600' : 'text-red-600'}`}>
                   {resultado.nota_total}
                 </span>
                 <span className="text-xl font-medium text-slate-400">/ {resultado.nota_maxima_possivel}</span>
@@ -306,7 +306,7 @@ export function RedacaoForm() {
                     <h4 className="font-bold text-slate-800">
                       {crit.nome_criterio}
                     </h4>
-                    <span className={`font-black bg-slate-50 px-3 py-1 rounded-full text-sm whitespace-nowrap ${resultado.is_plagio ? 'text-red-600' : 'text-blue-700'}`}>
+                    <span className={`font-black bg-slate-50 px-3 py-1 rounded-full text-sm whitespace-nowrap ${resultado.is_plagio ? 'text-amber-600' : 'text-red-600'}`}>
                       {crit.nota_obtida} / {crit.nota_maxima}
                     </span>
                   </div>

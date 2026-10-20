@@ -1,51 +1,64 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { createClient } from '../../utils/supabase/client'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { authHeaders } from '../../utils/authHeaders'
+import { authHeaders } from '@/utils/authHeaders'
+import { DashboardNav } from '@/components/DashboardNav'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://redacao-nota-10-backend-production.up.railway.app"
 
 export default function Historico() {
+  const router = useRouter()
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
   const [expandedId, setExpandedId] = useState<string | number | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     async function fetchHistory() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      if (!user) {
+        router.replace('/login')
+        return
+      }
+      setUser(user)
+
+      try {
         const res = await fetch(`${API_URL}/api/redacao/history/${user.id}`, { headers: await authHeaders() })
         if (res.ok) {
           const data = await res.json()
           setHistory(data)
         }
+      } catch (e) {
+        console.error("Erro ao buscar histórico:", e)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchHistory()
-  }, [])
+  }, [router, supabase])
 
-  if (loading) return <div className="p-12 text-center">Carregando histórico...</div>
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <nav className="flex items-center justify-between bg-white px-6 py-4 rounded-xl shadow-sm border border-slate-200 mb-8">
-          <Link href="/dashboard" className="font-black text-slate-900 text-lg">
-            Redação <span className="text-blue-600">Nota 10 AÍ</span>
-          </Link>
-          <div className="flex items-center gap-4 text-sm font-semibold">
-            <Link href="/dashboard" className="text-slate-600 hover:text-slate-900">Nova Redação</Link>
-            <Link href="/historico" className="text-blue-600">Histórico</Link>
-            <Link href="/pagamento" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">Comprar Créditos</Link>
-          </div>
-        </nav>
+    <div className="min-h-screen bg-gray-50/70 p-4 sm:p-6">
+      <div className="max-w-5xl mx-auto">
+        <DashboardNav
+          userName={user?.user_metadata?.full_name}
+          userEmail={user?.email}
+        />
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Meu Histórico</h1>
-          <Link href="/dashboard" className="text-blue-600 hover:underline">Voltar</Link>
+          <h1 className="text-2xl font-bold text-slate-900">Meu Histórico</h1>
+          <Link href="/dashboard" className="text-sm font-bold text-red-600 hover:underline">← Voltar para Nova Redação</Link>
         </div>
         {history.length === 0 ? (
           <p className="text-gray-500">Nenhuma redação avaliada ainda.</p>

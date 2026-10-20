@@ -1,6 +1,7 @@
 import logging
 import base64
 import json
+from typing import Optional
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response, Depends
 from app.auth import get_user_id
 from pydantic import BaseModel

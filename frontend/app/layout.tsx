@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://redacao.aitecnologia.xyz/",
   },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/icon.svg",
+  },
   robots: {
     index: true,
     follow: true,

@@ -1,0 +1,34 @@
+================================================================================
+CERTIFICADO DE RESUMO DIGITAL HASH PARA PROTOCOLO NO INPI (SISTEMA e-SOFTWARE)
+================================================================================
+Titular: Aí Tecnologia e Educação Ltda. ("AÍ")
+Programa: REDAÇÃO NOTA 10 AÍ — Sistema Automatizado de Transcrição Óptica de Manuscritos (OCR Vision), Auditoria nas 5 Competências do ENEM e Reescrita Assistida
+Data de Geração do Pacote: 2026-10-27 12:43:35 UTC
+Total de Arquivos-Fonte Incluídos: 39 arquivos
+Total de Linhas de Código/Documentação: 2882 linhas
+Documento de Patente Formatado (IN 30/2013): PEDIDO_PATENTE_INPI_REDACAO_NOTA_10_AI.docx (39,294 bytes)
+
+--------------------------------------------------------------------------------
+1. PACOTE CONSOLIDADO (.ZIP) — RECOMENDADO PARA GUARDA LEGAL E REGISTRO
+--------------------------------------------------------------------------------
+Arquivo: redacao_nota_10_ai_codigo_fonte_inpi.zip
+Tamanho: 95,856 bytes
+Algoritmo INPI (Campo "Algoritmo Hash"): SHA-512
+Resumo Digital Hash (SHA-512):
+b2a47f3609a0d07a5a5e1a1948efaa768bffaba469a5b421a35b85b39c0aeb8347fdd020fb63a7e4139344835108d5d56c9fd5c25aff017b67ce68a277968547
+
+Resumo Digital Alternativo (SHA-256):
+183abc69b43985403edd5888d31931d6727ef23e9911dea761d3fb4f2bfa7f9b
+
+--------------------------------------------------------------------------------
+2. LISTAGEM INTEGRAL EM TEXTO (.TXT)
+--------------------------------------------------------------------------------
+Arquivo: redacao_nota_10_ai_listagem_codigo_fonte.txt
+Tamanho: 143,682 bytes
+Algoritmo INPI (Campo "Algoritmo Hash"): SHA-512
+Resumo Digital Hash (SHA-512):
+5ca72d3953667aa4fede905969581cdea7028ba190649ba6d4a26eecd74aa6b867876cc16ad9c8ce05accf79aee9b68c82593c6aae09782b36ea7696f3c4da27
+
+Resumo Digital Alternativo (SHA-256):
+ce8ec7caea516c3a130a43d23e5880761320e8bc56df887068a548d3ae3624ec
+================================================================================

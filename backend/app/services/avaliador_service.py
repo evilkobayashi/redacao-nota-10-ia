@@ -70,14 +70,80 @@ async def extrair_texto_ocr(image_base64: str) -> str:
         logger.error(f"Erro OCR Gemini: {e}")
         raise ValueError("Não foi possível processar a imagem do manuscrito.")
 
+async def _avaliar_com_sabia(tema: str, texto: str, banca: str, prompt_sistema: str, sabia_key: str) -> AvaliacaoRedacao:
+    """
+    Avalia a redação utilizando a LLM soberana brasileira Sabiá-3 (Maritaca AI — Servidores Nacionais),
+    especialista nas 5 competências do ENEM, FUVEST, VUNESP e norma culta da Língua Portuguesa.
+    """
+    import urllib.request
+    import re
+
+    base_url = os.getenv("SABIA_BASE_URL", "https://chat.maritaca.ai/api").rstrip("/")
+    model = os.getenv("SABIA_MODEL", "sabia-4")
+    if model in ("sabia-3", "sabia-3.1"):
+        model = "sabia-4"
+    elif model == "sabiazinho-3":
+        model = "sabiazinho-4"
+    url = f"{base_url}/chat/completions"
+
+    schema_instrucao = (
+        "\n\nRetorne EXCLUSIVAMENTE um objeto JSON válido contendo exatamente as chaves do schema AvaliacaoRedacao:\n"
+        '{"nota_total": int, "nota_maxima_possivel": int, "resumo_geral": str, "is_plagio": bool, '
+        '"criterios": [{"nome": str, "nota_obtida": float, "nota_maxima": float, "analise_critica": str}], '
+        '"erros_detalhados": [{"trecho_original": str, "problema": str, "sugestao_reescrita": str, "competencia_afetada": str}], '
+        '"referencias_leitura": [{"titulo_ou_autor": str, "tipo": str, "como_aplicar": str}]}'
+    )
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompt_sistema + schema_instrucao},
+            {"role": "user", "content": f"TEMA DA REDAÇÃO:\n{tema}\n\nBANCA ALVO:\n{banca}\n\nTEXTO DO ALUNO:\n{texto}"},
+        ],
+        "temperature": 0.2,
+        "max_tokens": 3500,
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {sabia_key}",
+            "Content-Type": "application/json",
+            "User-Agent": "AiTecnologia/2.1",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=35) as resp:
+        result = json.loads(resp.read().decode("utf-8"))
+        raw = result["choices"][0]["message"]["content"].strip()
+        raw = re.sub(r"^```(?:json)?\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
+        start = raw.find("{")
+        end = raw.rfind("}") + 1
+        dados_json = json.loads(raw[start:end])
+        return AvaliacaoRedacao(**dados_json)
+
+
 async def avaliar_redacao_gemini(tema: str, texto: str, banca: str = "ENEM", is_plagio: bool = False, nome_aluno: str = None) -> AvaliacaoRedacao:
     """
-    Chama a API do Google Gemini 1.5 Pro utilizando o Structured Outputs 
-    para garantir que a IA devolva exatamente o Pydantic format `AvaliacaoRedacao`.
+    Avalia a redação priorizando a LLM brasileira Sabiá-3 (Maritaca AI em servidores no Brasil)
+    quando MARITACA_API_KEY / SABIA_API_KEY estiver configurada, com fallback automático para Google Gemini.
     """
     if nome_aluno:
         import re
         texto = re.sub(re.escape(nome_aluno), "[NOME_OCULTO_LGPD]", texto, flags=re.IGNORECASE)
+
+    aviso_plagio = "AVISO DO SISTEMA: ESTA REDAÇÃO FOI DETECTADA COMO PLÁGIO DA INTERNET. ZERE A NOTA E DÊ UM FEEDBACK SOCRÁTICO SOBRE DESONESTIDADE ACADÊMICA." if is_plagio else ""
+    prompt_sistema = PROMPT_BASE.format(banca=banca, plagio_warning=aviso_plagio)
+
+    sabia_key = (os.getenv("MARITACA_API_KEY") or os.getenv("SABIA_API_KEY") or "").strip()
+    if sabia_key and not sabia_key.startswith("mock-"):
+        try:
+            logger.info("Avaliando redação com Sabiá-3 (Maritaca AI - Servidor Brasileiro)...")
+            return await _avaliar_com_sabia(tema, texto, banca, prompt_sistema, sabia_key)
+        except Exception as sabia_err:
+            logger.warning(f"Sabiá-3 falhou ({sabia_err}), acionando contingência Gemini...")
+
     api_key = os.getenv("GEMINI_API_KEY")
     
     # Se a chave não existir (ambiente de desenvolvimento local), retornamos um Mock imediato.
@@ -89,9 +155,6 @@ async def avaliar_redacao_gemini(tema: str, texto: str, banca: str = "ENEM", is_
     client = genai.Client(api_key=api_key)
     
     prompt_usuario = f"TEMA DA REDAÇÃO:\n{tema}\n\nBANCA ALVO:\n{banca}\n\nTEXTO DO ALUNO:\n{texto}"
-    
-    aviso_plagio = "AVISO DO SISTEMA: ESTA REDAÇÃO FOI DETECTADA COMO PLÁGIO DA INTERNET. ZERE A NOTA E DÊ UM FEEDBACK SOCRÁTICO SOBRE DESONESTIDADE ACADÊMICA." if is_plagio else ""
-    prompt_sistema = PROMPT_BASE.format(banca=banca, plagio_warning=aviso_plagio)
     
     try:
         # A SDK `google-genai` permite passar o schema Pydantic diretamente, 

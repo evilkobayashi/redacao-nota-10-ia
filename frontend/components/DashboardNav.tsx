@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PenTool, LogOut, Sparkles, History, ShoppingCart } from 'lucide-react'
+import { PenTool, LogOut, Sparkles, History, ShoppingCart, Trash2 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 
 interface DashboardNavProps {
@@ -45,6 +45,35 @@ export function DashboardNav({ userEmail, userName }: DashboardNavProps) {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.replace('/login')
+  }
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'DIREITO AO ESQUECIMENTO (LGPD - Art. 18, VI):\n\nTem certeza que deseja excluir permanentemente sua conta e apagar todas as suas redações e dados pessoais? Esta ação não pode ser desfeita.'
+    )
+    if (!confirmed) return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://redacao-nota-10-backend-production.up.railway.app'
+      if (session?.access_token) {
+        await fetch(`${apiUrl}/api/redacao/account`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }).catch(() => {})
+      }
+      if (user) {
+        await supabase.from('redacao_submissions').delete().eq('user_id', user.id)
+        await supabase.from('user_credits').delete().eq('user_id', user.id)
+      }
+      localStorage.clear()
+      await supabase.auth.signOut()
+      alert('Seus dados pessoais e histórico foram apagados com sucesso conforme a LGPD.')
+      router.replace('/')
+    } catch {
+      await supabase.auth.signOut()
+      router.replace('/')
+    }
   }
 
   const isActive = (path: string) => pathname === path
@@ -113,11 +142,24 @@ export function DashboardNav({ userEmail, userName }: DashboardNavProps) {
         )}
 
         <button
+          type="button"
+          onClick={handleDeleteAccount}
+          title="Excluir Conta e Apagar Meus Dados (LGPD)"
+          aria-label="Excluir Conta e Apagar Meus Dados (LGPD)"
+          className="flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-900 px-2.5 py-1.5 rounded-lg border border-red-200 bg-red-50/60 hover:bg-red-100 transition-colors cursor-pointer"
+        >
+          <Trash2 className="size-3.5" aria-hidden="true" />
+          <span className="hidden sm:inline">Apagar Dados (LGPD)</span>
+        </button>
+
+        <button
+          type="button"
           onClick={handleLogout}
           title="Sair da conta"
-          className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-red-600 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+          aria-label="Sair da conta"
+          className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-red-600 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
         >
-          <LogOut className="size-3.5" />
+          <LogOut className="size-3.5" aria-hidden="true" />
           <span className="hidden sm:inline">Sair</span>
         </button>
       </div>

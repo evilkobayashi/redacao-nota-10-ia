@@ -39,7 +39,7 @@ function Logo({ small }: { small?: boolean }) {
         <PenTool className="size-4" aria-hidden />
       </span>
       <span className={`font-extrabold tracking-tight text-slate-800 ${small ? 'text-lg' : 'text-xl'}`}>
-        redação <span className="text-red-600">nota 10</span> <span className="text-amber-500">aí</span>
+        redação <span className="text-red-600">nota 10</span> <span className="text-amber-600">aí</span>
       </span>
     </span>
   )
@@ -73,7 +73,7 @@ function Secao({ titulo, texto, cor, invertido, children }: { titulo: string; te
 export default function LandingPage() {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="min-h-screen overflow-x-hidden bg-white text-slate-700 selection:bg-red-100">
+      <div id="main-content" className="min-h-screen overflow-x-hidden bg-white text-slate-700 selection:bg-red-100">
         {/* Nav */}
         <nav className="sticky top-0 z-20 border-b-2 border-slate-100 bg-white/90 backdrop-blur">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
@@ -91,7 +91,7 @@ export default function LandingPage() {
               transition={{ type: 'spring', stiffness: 120, damping: 14 }}
               className="rounded-3xl border-2 border-b-4 border-slate-200 bg-[#FFFDF7] p-6"
             >
-              <p className="mb-3 text-xs font-extrabold uppercase tracking-wider text-slate-400">Tema: Desafios da educação digital no Brasil</p>
+              <p className="mb-3 text-xs font-extrabold uppercase tracking-wider text-slate-600">Tema: Desafios da educação digital no Brasil</p>
               <p className="font-serif text-[15px] text-slate-700" style={linhas}>
                 A tecnologia transformou a forma de aprender. No entanto, muitos estudantes{' '}
                 <span className="underline decoration-red-500 decoration-wavy decoration-2 underline-offset-4">não possui</span>{' '}
@@ -270,11 +270,11 @@ export default function LandingPage() {
                 <div>
                   <h3 className={`text-xl font-extrabold ${pl.destaque ? 'text-red-600' : 'text-slate-800'}`}>{pl.t}</h3>
                   <p className="mt-1 text-2xl font-extrabold text-slate-800">{pl.p}</p>
-                  <p className={`text-xs font-bold mt-0.5 ${pl.destaque ? 'text-red-600' : 'text-slate-400'}`}>{pl.obs}</p>
+                  <p className={`text-xs font-bold mt-0.5 ${pl.destaque ? 'text-red-600' : 'text-slate-600'}`}>{pl.obs}</p>
                   <ul className="mt-4 space-y-2">
                     {pl.f.map(f => (
-                      <li key={f} className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                        <Check className="size-4 shrink-0 text-emerald-500" aria-hidden /> {f}
+                      <li key={f} className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                        <Check className="size-4 shrink-0 text-emerald-600" aria-hidden /> {f}
                       </li>
                     ))}
                   </ul>
@@ -285,13 +285,16 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
+          <p className="mx-auto mt-6 max-w-2xl text-center text-xs font-semibold text-slate-600">
+            ✓ Preços finais em Reais (R$) com todos os impostos inclusos · Zero taxas escondidas no PIX · Sem renovação automática forçada · Garantia incondicional de 7 dias com reembolso de 100% (Art. 49 do CDC).
+          </p>
         </section>
 
         {/* CTA final */}
         <section className="bg-red-600 px-6 py-16 text-center md:py-24">
           <motion.div {...reveal} className="mx-auto max-w-xl">
             <span className="mx-auto mb-6 grid size-20 place-items-center rounded-3xl border-b-[6px] border-amber-600 bg-amber-400 text-4xl" aria-hidden>✍️</span>
-            <h2 className="text-3xl font-extrabold text-white md:text-4xl">Bora escrever a próxima nota 1000?</h2>
+            <h2 className="text-3xl font-extrabold text-white md:text-4xl">Bora treinar rumo à nota 1000?</h2>
             <p className="mt-3 text-lg text-red-100">Crie sua conta em menos de 1 minuto e corrija sua primeira redação.</p>
             <Link href="/signup" className={`${btn3d} mt-8 w-full max-w-xs border-b-4 border-amber-600 bg-amber-400 text-slate-900 hover:bg-amber-300`}>
               Corrigir grátis
@@ -299,15 +302,31 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        <footer className="bg-red-700 px-6 py-8 text-center text-sm text-red-200">
-          <p>© {new Date().getFullYear()} <strong className="text-white">AÍ Tecnologia e Educação Ltda.</strong> — Todos os direitos reservados.</p>
+        <footer className="bg-red-800 px-6 py-10 text-center text-sm text-red-100">
+          <p className="font-bold text-white">
+            © {new Date().getFullYear()} Aí Tecnologia e Educação Inova Simples (I.S.) / Aí Tecnologia e Educação Ltda. — Todos os direitos reservados.
+          </p>
+          <p className="mt-1 text-xs text-red-100">
+            Sede: Queimados - RJ, Brasil · Suporte e Encarregado de Dados (DPO): <a href="mailto:contato@aitecnologia.xyz" className="underline font-semibold text-white">contato@aitecnologia.xyz</a> · Programas registrados no INPI.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold">
+            <Link href="/termos" className="text-white underline-offset-4 hover:underline">Termos de Serviço</Link>
+            <Link href="/privacidade" className="text-white underline-offset-4 hover:underline">Política de Privacidade (LGPD)</Link>
+            <Link href="/reembolso" className="text-white underline-offset-4 hover:underline">Política de Reembolso (7 Dias CDC)</Link>
+            <Link href="/cookies" className="text-white underline-offset-4 hover:underline">Política de Cookies e Auditoria de SDKs</Link>
+            <Link href="/unsubscribe" className="text-white underline-offset-4 hover:underline">Cancelar E-mails (Unsubscribe)</Link>
+            <Link href="/dashboard" className="text-amber-300 underline-offset-4 hover:underline">Apagar Meus Dados (LGPD)</Link>
+          </div>
+          <p className="mt-3 text-[11px] text-red-200">
+            Licenciamento de Ativos: Ilustrações vetoriais autorais Aí Tecnologia e ícones sob Licença MIT (Lucide Icons). Servidores de banco de dados localizados em São Paulo, Brasil (sa-east-1).
+          </p>
         </footer>
 
 {/* Disclaimer CDC */}
-<div className="w-full bg-gray-900 text-gray-400 py-6 text-center text-xs px-4">
+<div className="w-full bg-gray-900 text-gray-200 py-6 text-center text-xs px-4">
   <p className="max-w-4xl mx-auto">
-    Aviso Legal: Esta plataforma é uma ferramenta de <strong>assistência pedagógica baseada em Inteligência Artificial</strong>. 
-    Não garantimos resultados acadêmicos absolutos, notas ou aprovação automática. O uso das ferramentas requer supervisão 
+    Aviso Legal: Esta plataforma é uma ferramenta de <strong>assistência pedagógica e simulado diagnóstico baseada em Inteligência Artificial</strong>, sem vínculo oficial com o INEP/MEC. 
+    Não garantimos resultados acadêmicos absolutos, notas oficiais ou aprovação automática. O uso das ferramentas requer supervisão 
     do educador ou responsável legal.
   </p>
 </div>

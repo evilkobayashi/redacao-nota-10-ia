@@ -1,7 +1,17 @@
 import logging
 import base64
 import json
+import re
 from typing import Optional
+
+
+def _anonymize_pii(text: str | None) -> str:
+    """Mascara CPF e e-mails em textos de redação antes do envio para a IA (Minimização de Dados - Art. 6º, III LGPD)."""
+    if not text:
+        return ""
+    text = re.sub(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b", "[CPF_PROTEGIDO]", text)
+    text = re.sub(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", "[EMAIL_PROTEGIDO]", text)
+    return text
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Response, Depends
 from app.auth import get_user_id
 from pydantic import BaseModel
@@ -48,10 +58,11 @@ async def avaliar_endpoint(payload: RedacaoSubmit, user_id: str = Depends(get_us
         # Vamos passar pra IA mas avisar no retorno que é plágio.
 
     try:
-        # 3. Processa Inteligência Artificial (Gemini 1.5 Pro)
+        # 3. Processa Inteligência Artificial com anonimização prévia de PII (LGPD)
+        texto_anonimizado = _anonymize_pii(texto_para_avaliar)
         resultado = await avaliar_redacao_gemini(
             tema=payload.tema, 
-            texto=texto_para_avaliar,
+            texto=texto_anonimizado,
             banca=payload.banca,
             is_plagio=plagio_info["is_plagio"],
             nome_aluno=payload.aluno_nome
@@ -201,6 +212,45 @@ async def aprovar_redacao(submission_id: str, auth_uid: str = Depends(get_user_i
         return {"message": "Aprovado com sucesso"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class UnsubscribeRequest(BaseModel):
+    email: str
+
+
+@router.delete("/account", status_code=200)
+async def delete_user_account_lgpd(user_id: str = Depends(get_user_id)):
+    """
+    Exclui permanentemente todas as redações, créditos e a conta de autenticação do titular
+    em conformidade com o Art. 18, VI da LGPD (Direito ao Esquecimento).
+    """
+    db = get_supabase_client()
+    for tbl in ("redacao_submissions", "user_credits", "lgpd_consent_logs"):
+        try:
+            db.table(tbl).delete().eq("user_id", user_id).execute()
+        except Exception as e:
+            logger.warning(f"[LGPD Delete] Aviso ao limpar {tbl}: {e}")
+    try:
+        db.auth.admin.delete_user(user_id)
+    except Exception as e:
+        logger.warning(f"[LGPD Delete] Aviso ao remover auth user: {e}")
+    return {"status": "deleted", "message": "Dados pessoais e histórico excluídos permanentemente (Art. 18, VI LGPD)."}
+
+
+@router.post("/unsubscribe", status_code=200)
+async def unsubscribe_email_lgpd(payload: UnsubscribeRequest):
+    email_clean = payload.email.strip().lower()
+    if not email_clean or "@" not in email_clean:
+        raise HTTPException(status_code=400, detail="E-mail inválido.")
+    try:
+        db = get_supabase_client()
+        db.table("lgpd_unsubscribes").upsert(
+            {"email": email_clean, "product_name": "Redação Nota 10 AÍ"},
+            on_conflict="email",
+        ).execute()
+    except Exception as e:
+        logger.warning(f"[LGPD Unsubscribe] Aviso: {e}")
+    return {"status": "unsubscribed", "email": email_clean}
 
 @router.get("/turma-metricas")
 async def get_turma_metricas(turma_id: Optional[str] = None):

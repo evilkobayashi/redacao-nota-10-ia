@@ -127,6 +127,9 @@ export default function Pagamento() {
               >
                 {loading ? "Gerando Pix..." : `Pagar R$ ${pacote === 'pacote_30' ? '59,90' : '29,90'} via PIX`}
               </button>
+              <p className="mt-4 text-xs text-slate-600 max-w-md mx-auto">
+                ✓ Preço final em Reais (R$) com impostos inclusos · Zero taxas escondidas no PIX · Sem renovação automática · Direito de Arrependimento de 7 dias (<Link href="/reembolso" className="text-red-700 underline font-semibold">Política de Reembolso CDC</Link>).
+              </p>
             </>
           ) : (
             <div className="bg-white p-6 rounded-xl border shadow-sm">

@@ -188,7 +188,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <div className="space-y-2 pt-2 text-xs text-gray-600">
+              <div className="space-y-2 pt-2 text-xs text-gray-700">
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -198,8 +198,9 @@ export default function SignupPage() {
                   />
                   <span>
                     Li e aceito os{' '}
-                    <Link href="/termos" className="text-red-600 font-semibold hover:underline">Termos de Uso</Link> e a{' '}
-                    <Link href="/privacidade" className="text-red-600 font-semibold hover:underline">Política de Privacidade</Link>.
+                    <Link href="/termos" className="text-red-700 font-semibold underline">Termos de Serviço</Link>, a{' '}
+                    <Link href="/privacidade" className="text-red-700 font-semibold underline">Política de Privacidade (LGPD)</Link>{' '}e a{' '}
+                    <Link href="/cookies" className="text-red-700 font-semibold underline">Política de Cookies</Link>.
                   </span>
                 </label>
                 <label className="flex items-start gap-2 cursor-pointer">
@@ -210,9 +211,12 @@ export default function SignupPage() {
                     className="mt-0.5 w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
                   />
                   <span>
-                    Declaro ter 18 anos ou mais (ou estar assistido por responsável legal).
+                    Declaro ter 18 anos ou mais (ou possuir autorização expressa dos pais/responsável legal conforme Art. 14 da LGPD e ECA Digital).
                   </span>
                 </label>
+                <p className="text-[11px] text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+                  🔒 <strong>Minimização de Dados (LGPD):</strong> Coletamos apenas nome e e-mail estritamente necessários. Você pode excluir sua conta e dados em 1 clique no painel.
+                </p>
               </div>
 
               {message.text && (

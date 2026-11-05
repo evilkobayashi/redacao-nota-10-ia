@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic
+google-genai
+python-dotenv
+supabase
+fpdf2
+duckduckgo-search
+Pillow
+httpx

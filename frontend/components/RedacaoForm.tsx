@@ -127,6 +127,16 @@ export function RedacaoForm() {
           </div>
         </div>
 
+        <div className="mb-5 bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 space-y-1">
+          <div className="flex items-center gap-1.5 font-bold text-slate-800">
+            <span>ℹ️</span>
+            <span>Apoio Diagnóstico Formativo (MEC 2026)</span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-slate-500">
+            A correção automatizada por IA fornece diagnóstico formativo preliminar. Ela não substitui a avaliação soberana do educador de redação e preserva o direito à revisão pedagógica humana.
+          </p>
+        </div>
+
         <form onSubmit={handleSubmeter} className="space-y-5">
           {erro && (
             <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg space-y-2">
@@ -245,6 +255,20 @@ export function RedacaoForm() {
       <div className="space-y-6">
         {resultado ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Aviso Obrigatório MEC 2026: Avaliação Diagnóstica Auxiliar */}
+            <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 text-left shadow-2xs">
+              <div className="flex items-center gap-2 text-blue-900 font-bold text-xs uppercase tracking-wide mb-1.5">
+                <span>⚖️</span>
+                <span>Avaliação Diagnóstica Auxiliar (Diretrizes MEC 2026)</span>
+              </div>
+              <p className="text-xs text-blue-800 leading-relaxed">
+                Esta devolutiva foi gerada por inteligência artificial para fins estritamente formativos e de orientação aos estudos. Ela <strong>não substitui a avaliação soberana do educador ou da banca examinadora</strong> e garante o direito à revisão pedagógica humana.
+              </p>
+              <p className="text-[11px] text-blue-700/80 mt-1.5">
+                <em>Transparência Algorítmica: Modelos estatísticos probabilísticos podem ter imprecisões ao analisar metáforas, nuances autorais ou figuras de linguagem.</em>
+              </p>
+            </div>
+
             {/* Header / Nota Final */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center mb-6 relative overflow-hidden">
               <div className={`absolute top-0 left-0 w-full h-2 ${resultado.is_plagio ? 'bg-amber-600' : 'bg-red-600'}`} />
@@ -387,6 +411,21 @@ export function RedacaoForm() {
                 </p>
               </div>
             )}
+
+            {/* Bloco Anti-Descarregamento Cognitivo & Metacognição (MEC 2026) */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-5 rounded-xl mt-6 text-left">
+              <div className="flex items-center gap-2 text-amber-900 font-bold mb-2 text-sm">
+                <GraduationCap className="w-5 h-5 text-amber-700" />
+                <span>Autonomia Intelectual & Metacognição (MEC 2026)</span>
+              </div>
+              <p className="text-xs text-amber-900/90 leading-relaxed mb-3">
+                Para fortalecer sua autoria e raciocínio crítico, <strong>não copie soluções prontas</strong>. Examine os pontos de atenção apontados pela IA e reescreva seus próprios parágrafos com suas palavras, consultando seu professor de Língua Portuguesa para validação.
+              </p>
+              <div className="flex items-center gap-2 text-[11px] text-amber-800 font-medium bg-white/80 p-2.5 rounded-lg border border-amber-200/60">
+                <span>💡</span>
+                <span>Princípio Pedagógico: A consolidação da escrita autônoma decorre do esforço reflexivo individual e da mediação docente contínua.</span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-slate-100 rounded-xl border border-slate-200 border-dashed opacity-70">

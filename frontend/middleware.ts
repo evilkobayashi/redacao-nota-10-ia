@@ -9,6 +9,9 @@ export function middleware(request: NextRequest) {
   if (code && pathname === '/') {
     const callbackUrl = new URL('/auth/callback', request.url)
     callbackUrl.search = request.nextUrl.search
+    if (!callbackUrl.searchParams.has('next')) {
+      callbackUrl.searchParams.set('next', '/dashboard')
+    }
     return NextResponse.redirect(callbackUrl)
   }
 
